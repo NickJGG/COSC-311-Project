@@ -37,7 +37,7 @@ public class TicTacNode {
 	}
 	public void print() {
 		for (int i = 0; i < 9; i++) {
-			int x = i % 3, y = i / 3, bin = (int) Math.pow(2, i);
+			int x = i % 3, y = i / 3, bin = (1 << (i));
 			
 			if ((player1 & bin) > 0)
 				System.out.print("X");

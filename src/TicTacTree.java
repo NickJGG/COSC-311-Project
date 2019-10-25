@@ -10,7 +10,7 @@ public class TicTacTree {
 	}
 	
 	boolean isOccupied(int spot, TicTacNode node) {
-		int bin = (int) Math.pow(2, spot);
+		int bin = (1 << (spot));
 		
 		return (node.getPlayer1() & bin) > 0 || (node.getPlayer2() & bin) > 0;
 	}
@@ -34,9 +34,9 @@ public class TicTacTree {
 					int player1 = node.getPlayer1(), player2 = node.getPlayer2();
 					
 					if (player)
-						player2 += (int) Math.pow(2, j);
+						player2 += (1 << (j));
 					else
-						player1 += (int) Math.pow(2, j);
+						player1 += (1 << (j));
 					
 					TicTacNode child = new TicTacNode(node, player1, player2);
 					//child.print();
