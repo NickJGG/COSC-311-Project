@@ -1,3 +1,4 @@
+import java.util.Scanner;
 
 public class TicTacToe {
 	TicTacTree tree;
@@ -6,9 +7,25 @@ public class TicTacToe {
 		tree = new TicTacTree();
 	}
 	
-	public boolean move(int x, int y) {
-		int spot = y * 3 + x;
+	public void play() {
+		int spot = 0;
 		
-		return true;
+		Scanner input = new Scanner(System.in);
+		
+		while (true) {
+			tree.getRoot().print();
+			
+			System.out.print("Enter move: ");
+			
+			spot = input.nextInt();
+			
+			if (!tree.isOccupied(spot, tree.getRoot())) { // If spot chosen is free, find the node that matches the move and set that as the root
+				TicTacNode node = tree.getBoardMove(tree.getRoot().getPlayer1() + (1 << spot));
+				
+				tree.setRoot(tree.getBoardMove(tree.getRoot().getPlayer1() + (1 << spot)));
+			}
+			
+			tree.setRoot(tree.getBestMove(tree.getRoot()));
+		}
 	}
 }

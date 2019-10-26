@@ -47,7 +47,7 @@ public class TicTacNode {
 				System.out.print("-");
 
 			if (x == 2)
-				System.out.print("");
+				System.out.print("\n");
 		}
 		System.out.print("\n");
 	}
@@ -57,24 +57,27 @@ public class TicTacNode {
 		if((player1 | player2) == 0b111111111)
 			return true;
 
-		boolean win = ((player1 & 0b111000000) == 0b111000000) ||
-			((player1 & 0b000111000) == 0b000111000) ||
-			((player1 & 0b000000111) == 0b000000111) ||
-			((player1 & 0b100100100) == 0b100100100) ||
-			((player1 & 0b010010010) == 0b010010010) ||
-			((player1 & 0b001001001) == 0b001001001) ||
-			((player1 & 0b100010001) == 0b100010001) ||
-			((player1 & 0b001010100) == 0b001010100) ||
-
-			((player2 & 0b111000000) == 0b111000000) ||
-			((player2 & 0b000111000) == 0b000111000) ||
-			((player2 & 0b000000111) == 0b000000111) ||
-			((player2 & 0b100100100) == 0b100100100) ||
-			((player2 & 0b010010010) == 0b010010010) ||
-			((player2 & 0b001001001) == 0b001001001) ||
-			((player2 & 0b100010001) == 0b100010001) ||
-			((player2 & 0b001010100) == 0b001010100);
-		return win;
+		return checkPlayer1Win() || checkPlayer2Win();
+	}
+	public boolean checkPlayer1Win() {
+		return (player1 & 0b111000000) == 0b111000000 ||
+			(player1 & 0b000111000) == 0b000111000 ||
+			(player1 & 0b000000111) == 0b000000111 ||
+			(player1 & 0b100100100) == 0b100100100 ||
+			(player1 & 0b010010010) == 0b010010010 ||
+			(player1 & 0b001001001) == 0b001001001 ||
+			(player1 & 0b100010001) == 0b100010001 ||
+			(player1 & 0b001010100) == 0b001010100;
+	}
+	public boolean checkPlayer2Win() {
+		return (player2 & 0b111000000) == 0b111000000 ||
+			(player2 & 0b000111000) == 0b000111000 ||
+			(player2 & 0b000000111) == 0b000000111 ||
+			(player2 & 0b100100100) == 0b100100100 ||
+			(player2 & 0b010010010) == 0b010010010 ||
+			(player2 & 0b001001001) == 0b001001001 ||
+			(player2 & 0b100010001) == 0b100010001 ||
+			(player2 & 0b001010100) == 0b001010100;
 	}
 
 	public ArrayList<TicTacNode> getChildren(){
