@@ -4,9 +4,19 @@ public class Main {
 		TicTacToe t = new TicTacToe();
 		
 		System.out.println(t.tree.getRealSize(t.tree.root));
+		for(TicTacNode node : t.tree.root.getChildren()) {
+			System.out.println(node.checkComplete());
+			node.print();
+			
+		}
 		
-		TicTacNode a = new TicTacNode(0b100000000, 0b000000001);
-		a.print();
-		
+		TicTacTree testTree = new TicTacTree(0b001011000, 0b000100011, true);
+
+		System.out.println(testTree.getRealSize(testTree.root));
+
+		for(TicTacNode node : testTree.root.getChildren()) {
+			System.out.println(node.checkComplete());
+			node.print();
+		}
 	}
 }
