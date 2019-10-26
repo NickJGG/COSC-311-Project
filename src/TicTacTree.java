@@ -8,6 +8,12 @@ public class TicTacTree {
 		
 		populate(root, false);
 	}
+
+	public TicTacTree(int xs, int os, boolean player) {
+		root = new TicTacNode(xs, os);
+		
+		populate(root, player);
+	}
 	
 	boolean isOccupied(int spot, TicTacNode node) {
 		int bin = (1 << (spot));
@@ -27,6 +33,10 @@ public class TicTacTree {
 	
 	void populate(TicTacNode node, boolean player) {
 		int start = 0;
+
+		//Now if a game is actually complete it won't make hypothetical boards that can't happen.
+		if(node.checkComplete())
+			return;
 		
 		for (int i = 0; i < 9 - node.getLevel(); i++) {			
 			for (int j = i + start; j < 9; j++) {
@@ -41,16 +51,20 @@ public class TicTacTree {
 					TicTacNode child = new TicTacNode(node, player1, player2);
 					//child.print();
 					
-					populate(child, !player);
 					
+					populate(child, !player);
 					node.addChild(child);
+					
 					
 					break;
 				} else
 					start++;
 			}
 		}
+
 	}
+
+
 	
 	void setRoot(TicTacNode node) {
 		root = node;

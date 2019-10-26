@@ -47,8 +47,34 @@ public class TicTacNode {
 				System.out.print("-");
 			
 			if (x == 2)
-				System.out.println("\n");
+				System.out.print("\n");
 		}
+		System.out.print("\n");
+	}
+
+	//This method checks if the game has been completed on this given node.
+	public boolean checkComplete() {
+		if((player1 | player2) == 0b111111111)
+			return true;
+		
+		boolean win = ((player1 & 0b111000000) == 0b111000000) || 
+			((player1 & 0b000111000) == 0b000111000) || 
+			((player1 & 0b000000111) == 0b000000111) || 
+			((player1 & 0b100100100) == 0b100100100) || 
+			((player1 & 0b010010010) == 0b010010010) || 
+			((player1 & 0b001001001) == 0b001001001) || 
+			((player1 & 0b100010001) == 0b100010001) || 
+			((player1 & 0b001010100) == 0b001010100) || 
+			
+			((player2 & 0b111000000) == 0b111000000) || 
+			((player2 & 0b000111000) == 0b000111000) || 
+			((player2 & 0b000000111) == 0b000000111) || 
+			((player2 & 0b100100100) == 0b100100100) || 
+			((player2 & 0b010010010) == 0b010010010) || 
+			((player2 & 0b001001001) == 0b001001001) || 
+			((player2 & 0b100010001) == 0b100010001) || 
+			((player2 & 0b001010100) == 0b001010100);
+		return win;
 	}
 	
 	public ArrayList<TicTacNode> getChildren(){
