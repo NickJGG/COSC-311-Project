@@ -47,8 +47,10 @@ public class TicTacNode {
 				System.out.print("-");
 			
 			if (x == 2)
-				System.out.println("\n");
+				System.out.println("");
 		}
+		
+		System.out.println();
 	}
 	
 	public ArrayList<TicTacNode> getChildren(){
