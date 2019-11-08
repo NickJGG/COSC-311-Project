@@ -23,9 +23,15 @@ public class TicTacToe {
 				TicTacNode node = tree.getBoardMove(tree.getRoot().getPlayer1() + (1 << spot));
 				
 				tree.setRoot(tree.getBoardMove(tree.getRoot().getPlayer1() + (1 << spot)));
+
+				if (tree.getRoot().checkComplete()) {
+					tree.getRoot().print();
+					System.out.println("Winner");
+					
+					break;
+				} else
+					tree.setRoot(tree.getBestMove(tree.getRoot()));
 			}
-			
-			tree.setRoot(tree.getBestMove(tree.getRoot()));
 		}
 	}
 }

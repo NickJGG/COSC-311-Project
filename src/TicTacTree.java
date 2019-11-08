@@ -72,7 +72,7 @@ public class TicTacTree {
 		return null;
 	}
 	TicTacNode getBestMove(TicTacNode node) {
-		TicTacNode bestNode = null;
+		TicTacNode bestNode = node.getChildren().get(0);
 		
 		int bestScore = (int) Double.NEGATIVE_INFINITY;
 		

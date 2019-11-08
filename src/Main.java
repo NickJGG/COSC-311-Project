@@ -1,22 +1,21 @@
 
 public class Main {
 	public static void main(String[] args) {
-		TicTacToe t = new TicTacToe();
+		Draughts d = new Draughts();
+		d.printBoard();
 		
-		System.out.println(t.tree.getRealSize(t.tree.root));
-		for(TicTacNode node : t.tree.root.getChildren()) {
-			System.out.println(node.checkComplete());
-			node.print();
-			
-		}
+		d.move('b', 6, 10);
+		d.move('b', 10, 15);
+		d.move('b', 12, 17);
+		d.move('b', 12, 16);
 		
-		TicTacTree testTree = new TicTacTree(0b001011000, 0b000100011, true);
-
-		System.out.println(testTree.getRealSize(testTree.root));
-
-		for(TicTacNode node : testTree.root.getChildren()) {
-			System.out.println(node.checkComplete());
-			node.print();
-		}
+		d.move('w', 26, 22);
+		d.move('w', 23, 18);
+		d.move('w', 21, 18);
+		d.move('w', 21, 17);
+		
+		/*for (int i = 21; i <= 32; i++) {
+			System.out.println(i + " | " + d.getLegalMoves('w', i));
+		}*/
 	}
 }
