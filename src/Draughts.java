@@ -103,4 +103,14 @@ public class Draughts {
 	public int getColumn(int position) {
 		return (position - 1) % 4 + 1;
 	}
+	
+	public int getWhites() {
+		return whites;
+	}
+	public int getBlacks() {
+		return blacks;
+	}
+	public int getKings() {
+		return kings;
+	}
 }
