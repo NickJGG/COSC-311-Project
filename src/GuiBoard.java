@@ -39,6 +39,8 @@ public class GuiBoard {
 		private int position;
 		
 		private Draughts d;
+		
+		private GuiBoard board;
 
 		public static void init() throws IOException {
 			whiteMan = new ImageIcon(
@@ -51,24 +53,25 @@ public class GuiBoard {
 					ImageIO.read(SpacePanel.class.getClassLoader().getResource("resources/BlackKing.png")));
 		}
 
-		public SpacePanel(int position, Draughts d) {
+		public SpacePanel(int position, Draughts d, GuiBoard board) {
 			this.d = d;
 			this.position = position;
+			this.board = board;
 			this.addMouseListener(this);
 		}
 
 		// update's the spaces Icon
 		public void update(int piece) {
 			this.removeAll();
-			if (piece == WHITE_MAN) {
+			
+			if (piece == WHITE_MAN)
 				this.add(new JLabel(whiteMan));
-			} else if (piece == BLACK_MAN) {
+			else if (piece == BLACK_MAN)
 				this.add(new JLabel(blackMan));
-			} else if (piece == WHITE_KING) {
+			else if (piece == WHITE_KING)
 				this.add(new JLabel(whiteKing));
-			} else if (piece == BLACK_KING) {
+			else if (piece == BLACK_KING)
 				this.add(new JLabel(blackKing));
-			}
 		}
 
 		public int getPosition() {
@@ -78,11 +81,15 @@ public class GuiBoard {
 		public void mouseClicked(MouseEvent e) {
 			if(firstSelected != 0 && secondSelected == 0) {
 				secondSelected = position;
+				
 				System.out.println(position);
-				d.move('w', firstSelected, secondSelected);
-			} else {
+				
+				d.move(firstSelected, secondSelected);
+				board.update();
+			} else if (d.pieceExists(position)){
 				firstSelected = position;
 				secondSelected = 0;
+				
 				System.out.print(position + " > ");
 			}
 		}
@@ -96,8 +103,6 @@ public class GuiBoard {
 	}
 
 	SpacePanel[] spaces = new SpacePanel[32];
-	
-	
 
 	public GuiBoard(Draughts d) {
 		this.d = d;
@@ -120,9 +125,8 @@ public class GuiBoard {
 		mainPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
 		for (int i = 0; i < 32; i++) {
-
 			JPanel dummy = new JPanel();
-			spaces[i] = new SpacePanel(i + 1, d);
+			spaces[i] = new SpacePanel(i + 1, d, this);
 
 			dummy.setPreferredSize(new Dimension(40, 40));
 			spaces[i].setPreferredSize(new Dimension(40, 40));
@@ -139,7 +143,6 @@ public class GuiBoard {
 				mainPanel.add(spaces[i]);
 				mainPanel.add(dummy);
 			}
-
 		}
 
 		f.add(borderPanel);
@@ -152,18 +155,21 @@ public class GuiBoard {
 	public void update() {
 		for (int i = 1; i <= 32; i++) {
 			int digit = 1 << (32 - i);
+			
 			if ((digit & d.getWhites()) != 0) {
 				spaces[i - 1].update(SpacePanel.WHITE_MAN);
-				if ((digit & d.getKings()) != 0) {
+				
+				if ((digit & d.getKings()) != 0)
 					spaces[i - 1].update(SpacePanel.WHITE_KING);
-				}
 			} else if ((digit & d.getBlacks()) != 0) {
 				spaces[i - 1].update(SpacePanel.BLACK_MAN);
-				if ((digit & d.getKings()) != 0) {
+				
+				if ((digit & d.getKings()) != 0)
 					spaces[i - 1].update(SpacePanel.BLACK_KING);
-				}
-			}
+			} else
+				spaces[i - 1].update(SpacePanel.NONE);
 		}
+		
 		f.pack();
 		f.repaint();
 	}

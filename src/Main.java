@@ -9,8 +9,6 @@ public class Main {
 		GuiBoard b = new GuiBoard(d);
 		b.update();
 		
-		d.move('w', 21, 20);
-		
 		/*
 		d.move('b', 6, 10);
 		d.move('b', 10, 15);

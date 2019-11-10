@@ -17,16 +17,16 @@ public class Draughts {
 	public boolean pieceExists(int board, int position) {
 		int digit = 1 << (32 - position);
 		
-		return (board & digit) != 0;
+		return (digit & board) != 0;
 	}
 	public boolean inRange(int position) {
 		return position >= 0 && position < 32;
 	}
-	public boolean isLegalMove(char player, int source, int destination) {
-		if (!inRange(destination) || pieceExists(destination))
+	public boolean isLegalMove(int source, int destination) {
+		if (!inRange(source) || !pieceExists(source) || !inRange(destination) || pieceExists(destination))
 			return false;
 		
-		return getLegalMoves(player, source).contains(destination);
+		return getLegalMoves(source).contains(destination);
 	}
 	
 	public void printBoard() {
@@ -54,15 +54,34 @@ public class Draughts {
 			}
 		}
 	}
-	public void move(char player, int source, int destination) {
-		if (isLegalMove(player, source, destination))
+	public void move(int source, int destination) {
+		char player = getPlayer(source);
+		
+		if (isLegalMove(source, destination)) {
 			System.out.println(source + " to " + destination + " is legal");
-		else
+			
+			if (player == 'w') {
+				whites &= ~(1 << (32 - source));
+				whites |= (1 << (32 - destination));
+			} else {
+				blacks &= ~(1 << (32 - source));
+				blacks |= (1 << (32 - destination));
+			}
+		} else
 			System.out.println(source + " to " + destination + " is not legal");
 	}
 	
-	public ArrayList<Integer> getLegalMoves(char player, int source) {
+	public char getPlayer(int position) {
+		if (((1 << 32 - position) & whites) != 0)
+			return 'w';
+		
+		return 'b';
+	}
+	
+	public ArrayList<Integer> getLegalMoves(int source) {
 		ArrayList<Integer> moves = new ArrayList<>();
+		
+		char player = getPlayer(source);
 		
 		int row = getRow(source),
 				col = getColumn(source);
@@ -91,7 +110,7 @@ public class Draughts {
 		ArrayList<ArrayList<Integer>> moves = new ArrayList<>();
 		
 		for (int i = 1; i <= 32; i++) {
-			moves.add(getLegalMoves(i > 16 ? 'w' : 'b', i));
+			moves.add(getLegalMoves(i));
 		}
 		
 		return moves;
