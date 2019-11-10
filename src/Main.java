@@ -1,27 +1,16 @@
 
 public class Main {
 	public static void main(String[] args) {
-		Draughts d = new Draughts(0b00000000000000000000111111111111, 
-				0b11111111111100000000000000000000, 
-				0b00000000000000000000000100000000);
+		Draughts d = new Draughts(
+				0b00000000000001100000000000000000,
+				0b00000000000000011000000000000000,
+				0b00000000000001111000000000000000);
 		d.printBoard();
 
 		d.getAllLegalMoves();
 		
 		GuiBoard b = new GuiBoard(d);
 		b.update();
-		
-		/*
-		d.move('b', 6, 10);
-		d.move('b', 10, 15);
-		d.move('b', 12, 17);
-		d.move('b', 12, 16);
-		
-		d.move('w', 26, 22);
-		d.move('w', 23, 18);
-		d.move('w', 21, 18);
-		d.move('w', 21, 17);
-		*/
 		
 		/*for (int i = 21; i <= 32; i++) {
 			System.out.println(i + " | " + d.getLegalMoves('w', i));

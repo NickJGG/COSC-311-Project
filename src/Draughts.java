@@ -2,9 +2,6 @@ import java.util.ArrayList;
 
 public class Draughts {
 	
-	// King Rows
-	public static final int WHITE_KING_ROW = 0b11110000000000000000000000000000;
-	public static final int BLACK_KING_ROW = 0b00000000000000000000000000001111;
 	
 	int whites, blacks, kings;
 	
@@ -74,16 +71,25 @@ public class Draughts {
 			if (player == 'w') {
 				whites &= ~(1 << (32 - source));
 				whites |= (1 << (32 - destination));
+				
+				// Make king if in king row
+				if(destination >= 1 && destination <= 4)
+					kings |= (1 << (32 - destination));
+				
 			} else {
 				blacks &= ~(1 << (32 - source));
 				blacks |= (1 << (32 - destination));
+				
+				// Make king if in king row
+				if(destination >= 29 && destination <= 32)
+					kings |= (1 << (32 - destination));
+				
 			}
 			// move king flag if it exists on this piece
 			if(isKing(source)) {
 				kings &= ~(1 << (32 - source));
 				kings |= (1 << (32 - destination));
 			}
-			
 		} else
 			System.out.println(source + " to " + destination + " is not legal");
 	}
@@ -110,6 +116,11 @@ public class Draughts {
 		if (player == 'b') {
 			moves.add(source + 4); // Every piece has this spot as a legal move
 			
+			// Capture bottom right
+			if(getPlayer(source + 4) == 'w') {
+				moves.add(source + 7);
+			}
+			
 			if (row % 2 == 0) {
 				if (col > 1) 
 					moves.add(source + 3);
@@ -129,6 +140,11 @@ public class Draughts {
 			
 		} else {
 			moves.add(source - 4); // Every piece has this spot as a legal move
+			
+			// Capture top right
+			if(getPlayer(source - 4) == 'b') {
+				moves.add(source - 7);
+			}
 			
 			if (row % 2 == 0) {
 				if (col > 1) 
@@ -151,6 +167,8 @@ public class Draughts {
 		
 		return moves;
 	}
+	
+	
 	public ArrayList<ArrayList<Integer>> getAllLegalMoves() {
 		ArrayList<ArrayList<Integer>> moves = new ArrayList<>();
 		
