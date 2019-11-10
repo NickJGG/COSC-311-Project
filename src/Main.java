@@ -1,7 +1,9 @@
 
 public class Main {
 	public static void main(String[] args) {
-		Draughts d = new Draughts();
+		Draughts d = new Draughts(0b00000000000000000000111111111111, 
+				0b11111111111100000000000000000000, 
+				0b00000000000000000000000100000000);
 		d.printBoard();
 
 		d.getAllLegalMoves();

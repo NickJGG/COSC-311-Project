@@ -1,12 +1,22 @@
 import java.util.ArrayList;
 
 public class Draughts {
+	
+	// King Rows
+	public static final int WHITE_KING_ROW = 0b11110000000000000000000000000000;
+	public static final int BLACK_KING_ROW = 0b00000000000000000000000000001111;
+	
 	int whites, blacks, kings;
 	
 	public Draughts() {
 		whites = 0b00000000000000000000111111111111;
 		blacks = 0b11111111111100000000000000000000;
 		kings  = 0b00000000000000000000000000000000;
+	}
+	public Draughts(int whites, int blacks, int kings) {
+		this.whites = whites;
+		this.blacks = blacks;
+		this.kings  = kings;
 	}
 	
 	public boolean pieceExists(int position) {
@@ -20,7 +30,7 @@ public class Draughts {
 		return (digit & board) != 0;
 	}
 	public boolean inRange(int position) {
-		return position >= 0 && position < 32;
+		return position >= 0 && position <= 32;
 	}
 	public boolean isLegalMove(int source, int destination) {
 		if (!inRange(source) || !pieceExists(source) || !inRange(destination) || pieceExists(destination))
@@ -54,6 +64,7 @@ public class Draughts {
 			}
 		}
 	}
+	
 	public void move(int source, int destination) {
 		char player = getPlayer(source);
 		
@@ -67,6 +78,12 @@ public class Draughts {
 				blacks &= ~(1 << (32 - source));
 				blacks |= (1 << (32 - destination));
 			}
+			// move king flag if it exists on this piece
+			if(isKing(source)) {
+				kings &= ~(1 << (32 - source));
+				kings |= (1 << (32 - destination));
+			}
+			
 		} else
 			System.out.println(source + " to " + destination + " is not legal");
 	}
@@ -76,6 +93,10 @@ public class Draughts {
 			return 'w';
 		
 		return 'b';
+	}
+	// Returns true if that position is a King
+	public boolean isKing(int position) {
+		return (((1 << 32 - position) & kings) != 0);
 	}
 	
 	public ArrayList<Integer> getLegalMoves(int source) {
@@ -94,6 +115,18 @@ public class Draughts {
 					moves.add(source + 3);
 			} else if (col < 4)
 				moves.add(source + 5);
+			
+			// If king, add king moves
+			if(isKing(source)) {
+				moves.add(source - 4); // Every piece has this spot as a legal move
+				
+				if (row % 2 == 0) {
+					if (col > 1) 
+						moves.add(source  - 5);
+				} else if (col < 4)
+					moves.add(source - 3);
+			}
+			
 		} else {
 			moves.add(source - 4); // Every piece has this spot as a legal move
 			
@@ -102,6 +135,18 @@ public class Draughts {
 					moves.add(source  - 5);
 			} else if (col < 4)
 				moves.add(source - 3);
+			
+			// If king, add king moves
+			if(isKing(source)) {
+				moves.add(source + 4); // Every piece has this spot as a legal move
+				
+				if (row % 2 == 0) {
+					if (col > 1) 
+						moves.add(source + 3);
+				} else if (col < 4)
+					moves.add(source + 5);
+			}
+			
 		}
 		
 		return moves;

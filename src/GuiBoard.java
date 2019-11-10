@@ -1,3 +1,4 @@
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -16,6 +17,7 @@ import javax.imageio.ImageIO;
 public class GuiBoard {
 	JFrame f;
 	JPanel mainPanel;
+	JPanel infoPanel;
 	
 	Draughts d;
 
@@ -38,8 +40,6 @@ public class GuiBoard {
 		
 		private int position;
 		
-		private Draughts d;
-		
 		private GuiBoard board;
 
 		public static void init() throws IOException {
@@ -53,8 +53,7 @@ public class GuiBoard {
 					ImageIO.read(SpacePanel.class.getClassLoader().getResource("resources/BlackKing.png")));
 		}
 
-		public SpacePanel(int position, Draughts d, GuiBoard board) {
-			this.d = d;
+		public SpacePanel(int position, GuiBoard board) {
 			this.position = position;
 			this.board = board;
 			this.addMouseListener(this);
@@ -84,9 +83,9 @@ public class GuiBoard {
 				
 				System.out.println(position);
 				
-				d.move(firstSelected, secondSelected);
+				board.d.move(firstSelected, secondSelected);
 				board.update();
-			} else if (d.pieceExists(position)){
+			} else if (board.d.pieceExists(position)){
 				firstSelected = position;
 				secondSelected = 0;
 				
@@ -126,7 +125,7 @@ public class GuiBoard {
 
 		for (int i = 0; i < 32; i++) {
 			JPanel dummy = new JPanel();
-			spaces[i] = new SpacePanel(i + 1, d, this);
+			spaces[i] = new SpacePanel(i + 1, this);
 
 			dummy.setPreferredSize(new Dimension(40, 40));
 			spaces[i].setPreferredSize(new Dimension(40, 40));
@@ -144,9 +143,22 @@ public class GuiBoard {
 				mainPanel.add(dummy);
 			}
 		}
+		
+		
+		// Information Panel on the current game. Might be useful for stuff later.
+		infoPanel = new JPanel(new BorderLayout());
+		infoPanel.setPreferredSize(new Dimension(160, 322));
+		infoPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		infoPanel.setBackground(Color.WHITE);
+		
+		JPanel infoTitle = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		infoTitle.add(new JLabel("Information"));
+		infoTitle.setBackground(Color.WHITE);
+		infoPanel.add(infoTitle, BorderLayout.PAGE_START);
 
 		f.add(borderPanel);
 		borderPanel.add(mainPanel);
+		borderPanel.add(infoPanel);
 
 		f.pack();
 		f.setVisible(true);
