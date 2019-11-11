@@ -76,14 +76,18 @@ public class Draughts {
 				if(destination >= 1 && destination <= 4)
 					kings |= (1 << (32 - destination));
 				
+				if (Math.abs(source - destination) > 4)
+					blacks &= ~(1 << (32 - getPositionBetween(source, destination))); // Capture black piece				
 			} else {
 				blacks &= ~(1 << (32 - source));
 				blacks |= (1 << (32 - destination));
 				
 				// Make king if in king row
-				if(destination >= 29 && destination <= 32)
+				if(destination >= 29)
 					kings |= (1 << (32 - destination));
 				
+				if (Math.abs(source - destination) > 5)
+					whites &= ~(1 << (32 - getPositionBetween(source, destination))); // Capture white piece				
 			}
 			// move king flag if it exists on this piece
 			if(isKing(source)) {
@@ -96,6 +100,12 @@ public class Draughts {
 	
 	public char getPlayer(int position) {
 		if (((1 << 32 - position) & whites) != 0)
+			return 'w';
+		
+		return 'b';
+	}
+	public char getPlayer(int source, int destination) {
+		if (((1 << 32 - getPositionBetween(source, destination)) & whites) != 0)
 			return 'w';
 		
 		return 'b';
@@ -116,13 +126,14 @@ public class Draughts {
 		if (player == 'b') {
 			moves.add(source + 4); // Every piece has this spot as a legal move
 			
-			// Capture bottom right
-			if(getPlayer(source + 4) == 'w') {
+			if (col < 4 && getPlayer(source, source + 9) == 'w')
+				moves.add(source + 9);
+			
+			if (col > 1 && getPlayer(source, source + 7) == 'w')
 				moves.add(source + 7);
-			}
 			
 			if (row % 2 == 0) {
-				if (col > 1) 
+				if (col > 1)
 					moves.add(source + 3);
 			} else if (col < 4)
 				moves.add(source + 5);
@@ -138,19 +149,20 @@ public class Draughts {
 					moves.add(source - 3);
 			}
 			
-		} else {
+		} else {			
 			moves.add(source - 4); // Every piece has this spot as a legal move
 			
-			// Capture top right
-			if(getPlayer(source - 4) == 'b') {
+			if (col > 1 && getPlayer(source, source - 9) == 'b')
+				moves.add(source - 9);
+			
+			if (col < 4 && getPlayer(source, source - 7) == 'b')
 				moves.add(source - 7);
-			}
 			
 			if (row % 2 == 0) {
-				if (col > 1) 
+				if (col > 1)
 					moves.add(source  - 5);
 			} else if (col < 4)
-				moves.add(source - 3);
+					moves.add(source - 3);
 			
 			// If king, add king moves
 			if(isKing(source)) {
@@ -184,6 +196,12 @@ public class Draughts {
 	}
 	public int getColumn(int position) {
 		return (position - 1) % 4 + 1;
+	}
+	public int getPositionBetween(int source, int destination) {
+		int min = Math.min(source, destination),
+			max = Math.max(source, destination);
+		
+		return min + (max - min) / 2 + getRow(source) % 2;
 	}
 	
 	public int getWhites() {
