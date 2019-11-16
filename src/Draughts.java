@@ -142,6 +142,12 @@ public class Draughts {
 			if(isKing(source)) {
 				moves.add(source - 4); // Every piece has this spot as a legal move
 				
+				if (col > 1 && getPlayer(source, source - 9) == 'w')
+					moves.add(source - 9);
+				
+				if (col < 4 && getPlayer(source, source - 7) == 'w')
+					moves.add(source - 7);
+				
 				if (row % 2 == 0) {
 					if (col > 1) 
 						moves.add(source  - 5);
@@ -167,6 +173,12 @@ public class Draughts {
 			// If king, add king moves
 			if(isKing(source)) {
 				moves.add(source + 4); // Every piece has this spot as a legal move
+				
+				if (col < 4 && getPlayer(source, source + 9) == 'b')
+					moves.add(source + 9);
+				
+				if (col > 1 && getPlayer(source, source + 7) == 'b')
+					moves.add(source + 7);
 				
 				if (row % 2 == 0) {
 					if (col > 1) 
