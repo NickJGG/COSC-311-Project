@@ -118,6 +118,9 @@ public class Draughts {
 	public ArrayList<Integer> getLegalMoves(int source) {
 		ArrayList<Integer> moves = new ArrayList<>();
 		
+		if (!inRange(source) || !pieceExists(source))
+			return null;
+		
 		char player = getPlayer(source);
 		
 		int row = getRow(source),
@@ -197,7 +200,11 @@ public class Draughts {
 		ArrayList<ArrayList<Integer>> moves = new ArrayList<>();
 		
 		for (int i = 1; i <= 32; i++) {
-			moves.add(getLegalMoves(i));
+			ArrayList<Integer> legalMoves = getLegalMoves(i);
+			if(legalMoves != null) {
+				legalMoves.add(0, i);
+				moves.add(legalMoves);
+			}
 		}
 		
 		return moves;

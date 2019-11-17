@@ -1,8 +1,15 @@
 
 public class DraughtsTree {
-	Draughts root;
+	DraughtsNode root;
 	
-	public DraughtsTree() {
-		root = new Draughts();
+	public DraughtsTree(Draughts board) {
+		root = new DraughtsNode(board);
 	}
+	
+	public void populate() {
+		System.out.print("Populating Tree... ");
+		root.populate();
+		System.out.println("Done.");
+	}
+	
 }
