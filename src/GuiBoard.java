@@ -19,93 +19,15 @@ public class GuiBoard {
 	JPanel mainPanel;
 	JPanel infoPanel;
 	
-	Draughts d;
-
-	// Custom JPanel class for the spaces on the board
-	private static class SpacePanel extends JPanel implements MouseListener {
-		public static final int NONE = 0;
-		public static final int WHITE_MAN = 1;
-		public static final int BLACK_MAN = 2;
-		public static final int WHITE_KING = 3;
-		public static final int BLACK_KING = 4;
-
-		private static ImageIcon whiteMan;
-		private static ImageIcon blackMan;
-		private static ImageIcon whiteKing;
-		private static ImageIcon blackKing;
-		
-		
-		static int firstSelected = 0;
-		static int secondSelected = 0;
-		
-		private int position;
-		
-		private GuiBoard board;
-
-		public static void init() throws IOException {
-			whiteMan = new ImageIcon(
-					ImageIO.read(SpacePanel.class.getClassLoader().getResource("resources/WhiteMan.png")));
-			blackMan = new ImageIcon(
-					ImageIO.read(SpacePanel.class.getClassLoader().getResource("resources/BlackMan.png")));
-			whiteKing = new ImageIcon(
-					ImageIO.read(SpacePanel.class.getClassLoader().getResource("resources/WhiteKing.png")));
-			blackKing = new ImageIcon(
-					ImageIO.read(SpacePanel.class.getClassLoader().getResource("resources/BlackKing.png")));
-		}
-
-		public SpacePanel(int position, GuiBoard board) {
-			this.position = position;
-			this.board = board;
-			this.addMouseListener(this);
-		}
-
-		// update's the spaces Icon
-		public void update(int piece) {
-			this.removeAll();
-			
-			if (piece == WHITE_MAN)
-				this.add(new JLabel(whiteMan));
-			else if (piece == BLACK_MAN)
-				this.add(new JLabel(blackMan));
-			else if (piece == WHITE_KING)
-				this.add(new JLabel(whiteKing));
-			else if (piece == BLACK_KING)
-				this.add(new JLabel(blackKing));
-		}
-
-		public int getPosition() {
-			return this.position;
-		}
-
-		public void mouseClicked(MouseEvent e) {
-			if(firstSelected != 0 && secondSelected == 0) {
-				secondSelected = position;
-				
-				System.out.println(position);
-				
-				board.d.move(firstSelected, secondSelected);
-				board.update();
-			} else if (board.d.pieceExists(position)){
-				firstSelected = position;
-				secondSelected = 0;
-				
-				System.out.print(position + " > ");
-			}
-		}
-		
-		//Unused, but must be implemented to prevent compile errors
-		public void mousePressed(MouseEvent e) {}
-		public void mouseReleased(MouseEvent e) {}
-		public void mouseEntered(MouseEvent e) {}
-		public void mouseExited(MouseEvent e) {}
-
-	}
-
 	SpacePanel[] spaces = new SpacePanel[32];
-
-	public GuiBoard(Draughts d) {
-		this.d = d;
+	
+	DraughtsTree tree;
+	
+	public GuiBoard(DraughtsTree tree) {
+		this.tree = tree;
+		
 		createAndShow();
+		
 		try {
 			SpacePanel.init();
 		} catch (IOException e) {
@@ -168,15 +90,17 @@ public class GuiBoard {
 		for (int i = 1; i <= 32; i++) {
 			int digit = 1 << (32 - i);
 			
-			if ((digit & d.getWhites()) != 0) {
+			DraughtsNode root = tree.getRoot();
+			
+			if ((digit & root.getWhites()) != 0) {
 				spaces[i - 1].update(SpacePanel.WHITE_MAN);
 				
-				if ((digit & d.getKings()) != 0)
+				if ((digit & root.getKings()) != 0)
 					spaces[i - 1].update(SpacePanel.WHITE_KING);
-			} else if ((digit & d.getBlacks()) != 0) {
+			} else if ((digit & root.getBlacks()) != 0) {
 				spaces[i - 1].update(SpacePanel.BLACK_MAN);
 				
-				if ((digit & d.getKings()) != 0)
+				if ((digit & root.getKings()) != 0)
 					spaces[i - 1].update(SpacePanel.BLACK_KING);
 			} else
 				spaces[i - 1].update(SpacePanel.NONE);
@@ -185,4 +109,85 @@ public class GuiBoard {
 		f.pack();
 		f.repaint();
 	}
+
+	// Custom JPanel class for the spaces on the board
+	private static class SpacePanel extends JPanel implements MouseListener {
+		public static final int NONE = 0;
+		public static final int WHITE_MAN = 1;
+		public static final int BLACK_MAN = 2;
+		public static final int WHITE_KING = 3;
+		public static final int BLACK_KING = 4;
+
+		private static ImageIcon whiteMan;
+		private static ImageIcon blackMan;
+		private static ImageIcon whiteKing;
+		private static ImageIcon blackKing;
+		
+		
+		static int firstSelected = 0;
+		static int secondSelected = 0;
+		
+		private int position;
+		
+		private GuiBoard board;
+
+		public static void init() throws IOException {
+			whiteMan = new ImageIcon(
+					ImageIO.read(SpacePanel.class.getClassLoader().getResource("resources/WhiteMan.png")));
+			blackMan = new ImageIcon(
+					ImageIO.read(SpacePanel.class.getClassLoader().getResource("resources/BlackMan.png")));
+			whiteKing = new ImageIcon(
+					ImageIO.read(SpacePanel.class.getClassLoader().getResource("resources/WhiteKing.png")));
+			blackKing = new ImageIcon(
+					ImageIO.read(SpacePanel.class.getClassLoader().getResource("resources/BlackKing.png")));
+		}
+
+		public SpacePanel(int position, GuiBoard board) {
+			this.position = position;
+			this.board = board;
+			this.addMouseListener(this);
+		}
+
+		// update's the spaces Icon
+		public void update(int piece) {
+			this.removeAll();
+			
+			if (piece == WHITE_MAN)
+				this.add(new JLabel(whiteMan));
+			else if (piece == BLACK_MAN)
+				this.add(new JLabel(blackMan));
+			else if (piece == WHITE_KING)
+				this.add(new JLabel(whiteKing));
+			else if (piece == BLACK_KING)
+				this.add(new JLabel(blackKing));
+		}
+
+		public int getPosition() {
+			return this.position;
+		}
+
+		public void mouseClicked(MouseEvent e) {
+			DraughtsNode root = board.tree.getRoot();
+			
+			if(firstSelected != 0 && secondSelected == 0) {
+				secondSelected = position;
+				
+				System.out.println(position);
+				
+				root.move(firstSelected, secondSelected);
+				board.update();
+			} else if (root.pieceExists(position)){
+				firstSelected = position;
+				secondSelected = 0;
+				
+				System.out.print(position + " > ");
+			}
+		}
+		
+		//Unused, but must be implemented to prevent compile errors
+		public void mousePressed(MouseEvent e) {}
+		public void mouseReleased(MouseEvent e) {}
+		public void mouseEntered(MouseEvent e) {}
+		public void mouseExited(MouseEvent e) {}
+	}	
 }
