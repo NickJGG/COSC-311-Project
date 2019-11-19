@@ -11,8 +11,8 @@ public class Draughts {
 		this.tree = new DraughtsTree();
 		
 		DraughtsNode root = new DraughtsNode(tree, 
-				 0b000000000000000001,
-				 0b110000000000000000,
+				 0b000000000000000011,
+				 0b100000000000000000,
 				 0b000000000000000000);
 		
 		this.tree.setRoot(root);

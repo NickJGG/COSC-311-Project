@@ -20,11 +20,11 @@ public class DraughtsTree {
 	}
 
 	public boolean whiteWin(DraughtsNode node) {
-		return node.blacks == 0;
+		return node.blacks == 0 || getAllLegalMovesPlayer(node, 'b').size() == 0;
 	}
 
 	public boolean blackWin(DraughtsNode node) {
-		return node.whites == 0;
+		return node.whites == 0 || getAllLegalMovesPlayer(node, 'w').size() == 0;
 	}
 
 	public boolean pieceExists(DraughtsNode node, int position) {
@@ -42,22 +42,6 @@ public class DraughtsTree {
 	public boolean inRange(int position) {
 		return position >= 0 && position <= totalSpots;
 	}
-
-//	public boolean isLegalMove(DraughtsNode node, int source, int destination) {
-//		if (!inRange(source) || !pieceExists(node, source) || !inRange(destination) || pieceExists(node, destination))
-//			return false;
-//		
-//		boolean containDest = false;
-//		
-//		for(Move m : getLegalMoves(node, source)) {
-//			if(m.getDest() == destination) {
-//				containDest = true;
-//			}
-//		}
-//		
-//		//return getLegalMoves(node, source).contains(destination);
-//		return containDest;
-//	}
 
 	public boolean isLegalMove(DraughtsNode node, Move m) {
 		int source = m.getSource();
@@ -218,6 +202,7 @@ public class DraughtsTree {
 	// Get all the Legal moves for a given player
 	public ArrayList<Move> getAllLegalMovesPlayer(DraughtsNode node, char player) {
 		ArrayList<Move> moves = new ArrayList<>();
+		ArrayList<Move> movesNoCapture = new ArrayList<>();
 
 		boolean canCapture = false;
 
@@ -226,264 +211,105 @@ public class DraughtsTree {
 				ArrayList<Move> legalMoves = getLegalMoves(node, i);
 				if (legalMoves != null) {
 					for (Move m : legalMoves) {
+						moves.add(m);
 						if (m.isCapture()) {
 							canCapture = true;
-							moves.add(m);
-						} else if (!canCapture) {
-							moves.add(m);
+						} else {
+							movesNoCapture.add(m);
 						}
-
 					}
-					moves.addAll(legalMoves);
 				}
 			}
 		}
 		// Force a capture, if can capture
+		
 		if (canCapture) {
-			for (Move m : moves) {
-				if (!m.isCapture()) {
-					moves.remove(m);
-				}
-			}
+			moves.removeAll(movesNoCapture);
 		}
 
 		return moves;
 	}
-
+	
+	public boolean checkIfLegalNextMove(Move move) {
+		for(DraughtsNode child : root.children) {
+			if(child.move.equals(move)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	public void updateRoot(Move move) {
+		for(DraughtsNode child : root.children) {
+			if(child.move.equals(move)) {
+				this.root = child;
+			}
+		}
+	}
+	
+	
+	
+	// Recursive Populate -- Don't use, causes stack overflow.
+	/*
 	public void populate() {
-		System.out.print("Populating Tree... ");
+		System.out.println("Populating Tree... ");
+		root.populate();
+		System.out.println("Done.");
+	}
+	*/
+	
+	
+	public void populate() {
+		System.out.println("Populating Tree... ");
 
 		Stack<DraughtsNode> nodes = new Stack<>(); // Using a stack + while loop reduces memory usage
 		nodes.add(root);
 
-		int count = 0, complete = 0;
+		int count = 0, complete = 0, iteration = 0;
 
 		while (!nodes.isEmpty()) {
+			iteration++;
+			if(iteration%10 == 0) {
+				System.out.println("");
+			}
 			DraughtsNode node = nodes.pop();
 
-			if (isComplete(node))
+			if (isComplete(node)) {
 				complete++;
+				
+			}
 
-			if (isComplete(node) || node.getMovesSinceCap() >= 4)
+			if (isComplete(node)) {
+				System.out.print("*");
 				continue;
-
-//			for (int i = 1; i <= totalSpots; i++) {
-//				char player = getPlayer(node, i);
-//				
-//				if (pieceExists(node, i) && player != node.getLastPlayer()) { // If piece found is the opposite player
-//					ArrayList<Move> moves = getLegalMoves(node, i);
-//					
-//					for (Move move : moves) { // Add a new node for every possible move
-//						DraughtsNode newNode = new DraughtsNode(this, node);
-//						newNode.move(move);
-//						newNode.setLastPlayer(player);
-//						
-//						/*newNode.printBoard();
-//						System.out.println("Moves since last cap: " + newNode.getMovesSinceCap());
-//						System.out.println("Current player: " + player);
-//						System.out.println("Previous player: " + newNode.getLastPlayer());
-//						System.out.println(moves.toString() + "\n");*/
-//						
-//						nodes.push(newNode);
-//						
-//						node.addChild(newNode);
-//						
-//						count++;
-//					}
-//				}
-//			}
-
+			}
+			if (node.getMovesSinceCap() >= 5) {
+				System.out.print("x");
+				continue;
+			}
+			
 			char newPlayer = 'b';
 			if (node.lastPlayer == 'b')
 				newPlayer = 'w';
 			
 			for (Move move : getAllLegalMovesPlayer(node, newPlayer)) {
-				DraughtsNode newNode = new DraughtsNode(this, node);
-				newNode.move(move);
+				DraughtsNode newNode = new DraughtsNode(this, node, move);
+				//newNode.move(move);
 				newNode.setLastPlayer(move.getPlayer());
 				nodes.push(newNode);
 				node.addChild(newNode);
 				count++;
 			}
-
+			System.out.print(".");
 		}
 
 		System.out.println("Done.");
 
 		System.out.println(count);
+		System.out.println(iteration);
 		System.out.println(complete);
 	}
-
-//	public ArrayList<Integer> getLegalMoves(DraughtsNode node, int source) {
-//		ArrayList<Integer> moves = new ArrayList<>();
-//		
-//		if (!inRange(source) || !pieceExists(node, source))
-//			return null;
-//		
-//		char player = getPlayer(node, source);
-//		
-//		int row = getRow(source),
-//			col = getColumn(source),
-//			base;
-//		
-//		if (player == 'b') {
-//			base = source + width;
-//			
-//			if (row < height - 1) {
-//				if (col < width && getPlayer(node, source, base + width + 1) == 'w')
-//					moves.add(base + width + 1);
-//				
-//				if (col > 1 && getPlayer(node, source, base + width - 1) == 'w')
-//					moves.add(base + width - 1);
-//			}
-//			
-//			if (row < height * 2) {
-//				moves.add(base);
-//				
-//				if (row % 2 == 0) {
-//					if (col > 1)
-//						moves.add(base - 1);
-//				} else if (col < width)
-//					moves.add(base + 1);
-//			}
-//			
-//			// If king, add king moves
-//			if(isKing(node, source)) {				
-//				base = source - width;
-//				
-//				if (row > 2) {
-//					if (col > 1 && getPlayer(node, source, base - width - 1) == 'b')
-//						moves.add(base - width - 1);
-//					
-//					if (col < 4 && getPlayer(node, source, base - width + 1) == 'b')
-//						moves.add(base - width + 1);
-//				}
-//				
-//				if (row > 1) {
-//					moves.add(base);
-//					
-//					if (row % 2 == 0) {
-//						if (col > 1)
-//							moves.add(base - 1);
-//					} else if (col < width)
-//							moves.add(base + 1);
-//				}
-//			}
-//			
-//		} else {
-//			base = source - width;
-//			
-//			if (row > 2) {
-//				if (col > 1 && getPlayer(node, source, base - width - 1) == 'b')
-//					moves.add(base - width - 1);
-//				
-//				if (col < 4 && getPlayer(node, source, base - width + 1) == 'b')
-//					moves.add(base - width + 1);
-//			}
-//			
-//			if (row > 1) {
-//				moves.add(base);
-//				
-//				if (row % 2 == 0) {
-//					if (col > 1)
-//						moves.add(base - 1);
-//				} else if (col < width)
-//						moves.add(base + 1);
-//			}
-//			
-//			// If king, add king moves
-//			if(isKing(node, source)) {				
-//				base = source + width;
-//				
-//				if (row < height - 1) {
-//					if (col < width && getPlayer(node, source, base + width + 1) == 'w')
-//						moves.add(base + width + 1);
-//					
-//					if (col > 1 && getPlayer(node, source, base + width - 1) == 'w')
-//						moves.add(base + width - 1);
-//				}
-//				
-//				if (row < height * 2) {
-//					moves.add(base);
-//					
-//					if (row % 2 == 0) {
-//						if (col > 1)
-//							moves.add(base - 1);
-//					} else if (col < width)
-//						moves.add(base + 1);
-//				}
-//			}	
-//		}
-//		
-//		return moves;
-//	}
-//
-//	public ArrayList<ArrayList<Integer>> getAllLegalMoves(DraughtsNode node) {
-//		System.out.println("getting legal moves");
-//		ArrayList<ArrayList<Integer>> moves = new ArrayList<>();
-//		
-//		for (int i = 1; i <= totalSpots; i++) {
-//			ArrayList<Integer> legalMoves = getLegalMoves(node, i);
-//			
-//			if (legalMoves != null) {
-//				legalMoves.add(0, i);
-//				moves.add(legalMoves);
-//			}
-//		}
-//		System.out.println("getting got");
-//		return moves;
-//	}
-//
-//	public void populate() {
-//		System.out.print("Populating Tree... ");
-//		
-//		Stack<DraughtsNode> nodes = new Stack<>(); // Using a stack + while loop reduces memory usage
-//		nodes.add(root);
-//		
-//		int count = 0, complete = 0;
-//		
-//		while(!nodes.isEmpty()) {
-//			DraughtsNode node = nodes.pop();
-//			
-//			if (isComplete(node))
-//				complete++;
-//			
-//			if (isComplete(node) || node.getMovesSinceCap() >= 4)				
-//				continue;
-//			
-//			for (int i = 1; i <= totalSpots; i++) {
-//				char player = getPlayer(node, i);
-//				
-//				if (pieceExists(node, i) && player != node.getLastPlayer()) { // If piece found is the opposite player
-//					ArrayList<Integer> moves = getLegalMoves(node, i);
-//					
-//					for (int move : moves) { // Add a new node for every possible move
-//						DraughtsNode newNode = new DraughtsNode(this, node);
-//						newNode.move(i, move);
-//						newNode.setLastPlayer(player);
-//						
-//						/*newNode.printBoard();
-//						System.out.println("Moves since last cap: " + newNode.getMovesSinceCap());
-//						System.out.println("Current player: " + player);
-//						System.out.println("Previous player: " + newNode.getLastPlayer());
-//						System.out.println(moves.toString() + "\n");*/
-//						
-//						nodes.push(newNode);
-//						
-//						node.addChild(newNode);
-//						
-//						count++;
-//					}
-//				}
-//			}
-//		}
-//		
-//		System.out.println("Done.");
-//		
-//		System.out.println(count);
-//		System.out.println(complete);
-//	}
-//	
+	
+	
 	public int getRow(int position) {
 		return ((position - 1) / width) + 1;
 	}

@@ -175,14 +175,18 @@ public class GuiBoard {
 				System.out.println(position);
 				
 				Move m = new Move(board.tree.getPlayer(root, firstSelected), firstSelected, secondSelected);
-				System.out.println(m.toString());
+				//System.out.println(m.toString());
 				
-				//root.move(firstSelected, secondSelected);
-				root.move(m);
+				if(board.tree.checkIfLegalNextMove(m)) {
+					board.tree.updateRoot(m);
+				}
+				
+				for(DraughtsNode d : board.tree.root.getChildren()) {
+					System.out.println(d.move.toString());
+				}
 				
 				board.update();
 				
-				System.out.println(board.tree.isComplete(root));
 				
 			} else if (board.tree.pieceExists(root, position)){
 				firstSelected = position;
