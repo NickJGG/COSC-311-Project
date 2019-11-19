@@ -174,8 +174,16 @@ public class GuiBoard {
 				
 				System.out.println(position);
 				
-				root.move(firstSelected, secondSelected);
+				Move m = new Move(board.tree.getPlayer(root, firstSelected), firstSelected, secondSelected);
+				System.out.println(m.toString());
+				
+				//root.move(firstSelected, secondSelected);
+				root.move(m);
+				
 				board.update();
+				
+				System.out.println(board.tree.isComplete(root));
+				
 			} else if (board.tree.pieceExists(root, position)){
 				firstSelected = position;
 				secondSelected = 0;

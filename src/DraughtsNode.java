@@ -5,6 +5,9 @@ public class DraughtsNode {
 	
 	char lastPlayer;
 	
+	// 0 = Ongoing, 1 = white win, 2 = black win, 3 = tie;
+	int winState = 0;
+	
 	DraughtsTree tree;
 	
 	ArrayList<DraughtsNode> children = new ArrayList<DraughtsNode>();
@@ -68,10 +71,57 @@ public class DraughtsNode {
 			}
 		}
 	}
-	public void move(int source, int destination) {
-		char player = tree.getPlayer(this, source);
+	
+//	public void move(int source, int destination) {
+//		char player = tree.getPlayer(this, source);
+//		
+//		if (tree.isLegalMove(this, source, destination)) {
+//			//System.out.println(source + " to " + destination + " is legal");
+//			
+//			movesSinceCap++;
+//			
+//			if (player == 'w') {
+//				whites &= ~(1 << (tree.totalSpots - source));
+//				whites |= (1 << (tree.totalSpots - destination));
+//				
+//				// Make king if in king row
+//				if(destination >= 1 && destination <= tree.width)
+//					kings |= (1 << (tree.totalSpots - destination));
+//				
+//				if (Math.abs(source - destination) > tree.width + 1) {
+//					blacks &= ~(1 << (tree.totalSpots - tree.getPositionBetween(source, destination))); // Capture black piece
+//					
+//					movesSinceCap = 0;
+//				}
+//			} else {
+//				blacks &= ~(1 << (tree.totalSpots - source));
+//				blacks |= (1 << (tree.totalSpots - destination));
+//				
+//				// Make king if in king row
+//				if(destination > tree.totalSpots - tree.width)
+//					kings |= (1 << (tree.totalSpots - destination));
+//				
+//				if (Math.abs(source - destination) > tree.width + 1) {
+//					whites &= ~(1 << (tree.totalSpots - tree.getPositionBetween(source, destination))); // Capture white piece
+//					
+//					movesSinceCap = 0;
+//				}
+//			}
+//			// move king flag if it exists on this piece
+//			if(tree.isKing(this, source)) {
+//				kings &= ~(1 << (tree.totalSpots - source));
+//				kings |= (1 << (tree.totalSpots - destination));
+//			}
+//		} else
+//			System.out.println(source + " to " + destination + " is not legal");
+//	}
+	
+	public void move(Move m) {
+		int source = m.getSource();
+		int destination = m.getDest();
+		char player = m.getPlayer();
 		
-		if (tree.isLegalMove(this, source, destination)) {
+		if (tree.isLegalMove(this, m)) {
 			//System.out.println(source + " to " + destination + " is legal");
 			
 			movesSinceCap++;
@@ -108,8 +158,7 @@ public class DraughtsNode {
 				kings &= ~(1 << (tree.totalSpots - source));
 				kings |= (1 << (tree.totalSpots - destination));
 			}
-		} //else
-			//System.out.println(source + " to " + destination + " is not legal");
+		}
 	}
 	
 	public int getWhites() {
