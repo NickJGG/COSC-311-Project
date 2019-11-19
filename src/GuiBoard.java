@@ -42,10 +42,10 @@ public class GuiBoard {
 		JPanel borderPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 20));
 		borderPanel.setBackground(Color.WHITE);
 
-		mainPanel = new JPanel(new GridLayout(8, 8));
+		mainPanel = new JPanel(new GridLayout(tree.width * 2, tree.height * 2));
 		mainPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
-		for (int i = 0; i < 32; i++) {
+		for (int i = 0; i < tree.totalSpots; i++) {
 			JPanel dummy = new JPanel();
 			spaces[i] = new SpacePanel(i + 1, this);
 
@@ -57,7 +57,7 @@ public class GuiBoard {
 			dummy.setBackground(new Color(255, 255, 255));
 			spaces[i].setBackground(new Color(200, 200, 200));
 
-			if ((i / 4) % 2 == 0) {
+			if ((i / tree.width) % 2 == 0) {
 				mainPanel.add(dummy);
 				mainPanel.add(spaces[i]);
 			} else {
@@ -87,8 +87,8 @@ public class GuiBoard {
 	}
 
 	public void update() {
-		for (int i = 1; i <= 32; i++) {
-			int digit = 1 << (32 - i);
+		for (int i = 1; i <= tree.totalSpots; i++) {
+			int digit = 1 << (tree.totalSpots - i);
 			
 			DraughtsNode root = tree.getRoot();
 			
@@ -176,7 +176,7 @@ public class GuiBoard {
 				
 				root.move(firstSelected, secondSelected);
 				board.update();
-			} else if (root.pieceExists(position)){
+			} else if (board.tree.pieceExists(root, position)){
 				firstSelected = position;
 				secondSelected = 0;
 				

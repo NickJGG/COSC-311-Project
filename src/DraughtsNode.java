@@ -1,240 +1,115 @@
 import java.util.ArrayList;
 
-public class DraughtsNode {
-	Draughts board;
+public class DraughtsNode {	
+	int ply = 0, whites, blacks, kings, movesSinceCap = 0;
 	
-	int ply = 0, whites, blacks, kings;;
+	char lastPlayer;
+	
+	DraughtsTree tree;
 	
 	ArrayList<DraughtsNode> children = new ArrayList<DraughtsNode>();
 	
-	public DraughtsNode() {
+	public DraughtsNode(DraughtsTree tree) {
+		this.tree = tree;
 		this.whites = 0b00000000000000000000111111111111;
 		this.blacks = 0b11111111111100000000000000000000;
 		this.kings  = 0b00000000000000000000000000000000;
 	}
-	public DraughtsNode(DraughtsNode node, int ply) {
+	public DraughtsNode(DraughtsTree tree, DraughtsNode node) {
+		this.tree = tree;
+		this.whites = node.whites;
+		this.blacks = node.blacks;
+		this.kings = node.kings;
+		this.movesSinceCap = node.getMovesSinceCap();
+	}
+	public DraughtsNode(DraughtsTree tree, DraughtsNode node, int ply) {
+		this.tree = tree;
 		this.whites = node.whites;
 		this.blacks = node.blacks;
 		this.kings = node.kings;
 		this.ply = ply;
 	}
-	public DraughtsNode(int whites, int blacks, int kings) {
+	public DraughtsNode(DraughtsTree tree, int whites, int blacks, int kings) {
+		this.tree = tree;
 		this.whites = whites;
 		this.blacks = blacks;
 		this.kings  = kings;
 	}
-	public DraughtsNode(int whites, int blacks, int kings, int ply) {
+	public DraughtsNode(DraughtsTree tree, int whites, int blacks, int kings, int ply) {
+		this.tree = tree;
 		this.whites = whites;
 		this.blacks = blacks;
 		this.kings  = kings;
 		this.ply = ply;
-	}
-	
-	public boolean pieceExists(int position) {
-		int digit = 1 << (32 - position);
-		
-		return (whites & digit) != 0 || (blacks & digit) != 0;
-	}
-	public boolean pieceExists(int board, int position) {
-		int digit = 1 << (32 - position);
-		
-		return (digit & board) != 0;
-	}
-	public boolean inRange(int position) {
-		return position >= 0 && position <= 32;
-	}
-	public boolean isLegalMove(int source, int destination) {
-		if (!inRange(source) || !pieceExists(source) || !inRange(destination) || pieceExists(destination))
-			return false;
-		
-		return getLegalMoves(source).contains(destination);
-	}
+	}	
 	
 	public void printBoard() {
 		int row = 0;
 		
-		for (int i = 1; i <= 32; i++) {
+		for (int i = 1; i <= tree.totalSpots; i++) {
 			char c = ' ';
 			
-			if (pieceExists(whites, i))
+			if (tree.pieceExists(this, whites, i))
 				c = 'w';
-			if (pieceExists(blacks, i))
+			if (tree.pieceExists(this, blacks, i))
 				c = 'b';
 			
-			if (pieceExists(kings, i) && c != ' ')
-				c++;
+			if (tree.pieceExists(this, kings, i) && c != ' ')
+				c -= 32;
 			
 			if (row % 2 == 0)
 				System.out.print("-" + c);
 			else
 				System.out.print(c + "-");
 			
-			if (i % 4 == 0) {
+			if (i % tree.width == 0) {
 				System.out.println();
 				row++;
 			}
 		}
 	}
-	
 	public void move(int source, int destination) {
-		char player = getPlayer(source);
+		char player = tree.getPlayer(this, source);
 		
-		if (isLegalMove(source, destination)) {
-			System.out.println(source + " to " + destination + " is legal");
+		if (tree.isLegalMove(this, source, destination)) {
+			//System.out.println(source + " to " + destination + " is legal");
+			
+			movesSinceCap++;
 			
 			if (player == 'w') {
-				whites &= ~(1 << (32 - source));
-				whites |= (1 << (32 - destination));
+				whites &= ~(1 << (tree.totalSpots - source));
+				whites |= (1 << (tree.totalSpots - destination));
 				
 				// Make king if in king row
-				if(destination >= 1 && destination <= 4)
-					kings |= (1 << (32 - destination));
+				if(destination >= 1 && destination <= tree.width)
+					kings |= (1 << (tree.totalSpots - destination));
 				
-				if (Math.abs(source - destination) > 4)
-					blacks &= ~(1 << (32 - getPositionBetween(source, destination))); // Capture black piece				
+				if (Math.abs(source - destination) > tree.width + 1) {
+					blacks &= ~(1 << (tree.totalSpots - tree.getPositionBetween(source, destination))); // Capture black piece
+					
+					movesSinceCap = 0;
+				}
 			} else {
-				blacks &= ~(1 << (32 - source));
-				blacks |= (1 << (32 - destination));
+				blacks &= ~(1 << (tree.totalSpots - source));
+				blacks |= (1 << (tree.totalSpots - destination));
 				
 				// Make king if in king row
-				if(destination >= 29)
-					kings |= (1 << (32 - destination));
+				if(destination > tree.totalSpots - tree.width)
+					kings |= (1 << (tree.totalSpots - destination));
 				
-				if (Math.abs(source - destination) > 5)
-					whites &= ~(1 << (32 - getPositionBetween(source, destination))); // Capture white piece				
+				if (Math.abs(source - destination) > tree.width + 1) {
+					whites &= ~(1 << (tree.totalSpots - tree.getPositionBetween(source, destination))); // Capture white piece
+					
+					movesSinceCap = 0;
+				}
 			}
 			// move king flag if it exists on this piece
-			if(isKing(source)) {
-				kings &= ~(1 << (32 - source));
-				kings |= (1 << (32 - destination));
+			if(tree.isKing(this, source)) {
+				kings &= ~(1 << (tree.totalSpots - source));
+				kings |= (1 << (tree.totalSpots - destination));
 			}
-		} else
-			System.out.println(source + " to " + destination + " is not legal");
-	}
-	
-	public char getPlayer(int position) {
-		if (((1 << 32 - position) & whites) != 0)
-			return 'w';
-		
-		return 'b';
-	}
-	public char getPlayer(int source, int destination) {
-		if (((1 << 32 - getPositionBetween(source, destination)) & whites) != 0)
-			return 'w';
-		
-		return 'b';
-	}
-	// Returns true if that position is a King
-	public boolean isKing(int position) {
-		return (((1 << 32 - position) & kings) != 0);
-	}
-	
-	public ArrayList<Integer> getLegalMoves(int source) {
-		ArrayList<Integer> moves = new ArrayList<>();
-		
-		if (!inRange(source) || !pieceExists(source))
-			return null;
-		
-		char player = getPlayer(source);
-		
-		int row = getRow(source),
-				col = getColumn(source);
-		
-		if (player == 'b') {
-			moves.add(source + 4); // Every piece has this spot as a legal move
-			
-			if (col < 4 && getPlayer(source, source + 9) == 'w')
-				moves.add(source + 9);
-			
-			if (col > 1 && getPlayer(source, source + 7) == 'w')
-				moves.add(source + 7);
-			
-			if (row % 2 == 0) {
-				if (col > 1)
-					moves.add(source + 3);
-			} else if (col < 4)
-				moves.add(source + 5);
-			
-			// If king, add king moves
-			if(isKing(source)) {
-				moves.add(source - 4); // Every piece has this spot as a legal move
-				
-				if (col > 1 && getPlayer(source, source - 9) == 'w')
-					moves.add(source - 9);
-				
-				if (col < 4 && getPlayer(source, source - 7) == 'w')
-					moves.add(source - 7);
-				
-				if (row % 2 == 0) {
-					if (col > 1) 
-						moves.add(source  - 5);
-				} else if (col < 4)
-					moves.add(source - 3);
-			}
-			
-		} else {			
-			moves.add(source - 4); // Every piece has this spot as a legal move
-			
-			if (col > 1 && getPlayer(source, source - 9) == 'b')
-				moves.add(source - 9);
-			
-			if (col < 4 && getPlayer(source, source - 7) == 'b')
-				moves.add(source - 7);
-			
-			if (row % 2 == 0) {
-				if (col > 1)
-					moves.add(source  - 5);
-			} else if (col < 4)
-					moves.add(source - 3);
-			
-			// If king, add king moves
-			if(isKing(source)) {
-				moves.add(source + 4); // Every piece has this spot as a legal move
-				
-				if (col < 4 && getPlayer(source, source + 9) == 'b')
-					moves.add(source + 9);
-				
-				if (col > 1 && getPlayer(source, source + 7) == 'b')
-					moves.add(source + 7);
-				
-				if (row % 2 == 0) {
-					if (col > 1) 
-						moves.add(source + 3);
-				} else if (col < 4)
-					moves.add(source + 5);
-			}
-			
-		}
-		
-		return moves;
-	}
-	
-	
-	public ArrayList<ArrayList<Integer>> getAllLegalMoves() {
-		ArrayList<ArrayList<Integer>> moves = new ArrayList<>();
-		
-		for (int i = 1; i <= 32; i++) {
-			ArrayList<Integer> legalMoves = getLegalMoves(i);
-			if(legalMoves != null) {
-				legalMoves.add(0, i);
-				moves.add(legalMoves);
-			}
-		}
-		
-		return moves;
-	}
-	
-	public int getRow(int position) {
-		return ((position - 1) / 4) + 1;
-	}
-	public int getColumn(int position) {
-		return (position - 1) % 4 + 1;
-	}
-	public int getPositionBetween(int source, int destination) {
-		int min = Math.min(source, destination),
-			max = Math.max(source, destination);
-		
-		return min + (max - min) / 2 + getRow(source) % 2;
+		} //else
+			//System.out.println(source + " to " + destination + " is not legal");
 	}
 	
 	public int getWhites() {
@@ -246,23 +121,23 @@ public class DraughtsNode {
 	public int getKings() {
 		return kings;
 	}
-	
-	public void populate() {
-		if(ply < 5) {
-			for(ArrayList<Integer> move : getAllLegalMoves()) {
-				if(move.size() > 1) {
-					for(int i = 1; i < move.size(); i++) {
-						DraughtsNode copy = new DraughtsNode(whites, blacks, kings);
-						children.add(new DraughtsNode(copy, ply + 1));
-						
-						copy.move(move.get(0), move.get(i));
-					}
-				}
-			}
-			for(DraughtsNode child : children) {
-				child.populate();
-			}
-		}
+	public int getMovesSinceCap() {
+		return this.movesSinceCap;
+	}
+
+	public char getLastPlayer() {
+		return this.lastPlayer;
 	}
 	
+	public ArrayList<DraughtsNode> getChildren(){
+		return this.children;
+	}
+	
+	public void setLastPlayer(char lastPlayer) {
+		this.lastPlayer = lastPlayer;
+	}
+	
+	public void addChild(DraughtsNode node) {
+		this.children.add(node);
+	}
 }
