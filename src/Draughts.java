@@ -11,19 +11,16 @@ public class Draughts {
 		this.tree = new DraughtsTree();
 		
 		DraughtsNode root = new DraughtsNode(tree, 
-				 0b000000000000000011,
-				 0b100000000000000000,
+				 0b000000000000111111,
+				 0b111111000000000000,
 				 0b000000000000000000);
 		
 		this.tree.setRoot(root);
 	}
 	
 	public void play() {
-		long startTime = System.currentTimeMillis();
 		tree.populate();
-		long endTime = System.currentTimeMillis();
-		long totalTime = endTime - startTime;
-		System.out.println("Done in: " + totalTime + "ms");
+		
 	}
 	
 	public DraughtsTree getTree() {

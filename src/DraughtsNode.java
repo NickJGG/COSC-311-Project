@@ -6,6 +6,9 @@ public class DraughtsNode {
 	//The move that was taken to get here;
 	Move move;
 	
+	//The depth of this node in the tree
+	int depth = 0;
+	
 	char lastPlayer;
 	
 	// 0 = Ongoing, 1 = white win, 2 = black win, 3 = tie;
@@ -34,6 +37,7 @@ public class DraughtsNode {
 		this.blacks = node.blacks;
 		this.kings = node.kings;
 		this.movesSinceCap = node.getMovesSinceCap();
+		this.depth = node.depth + 1;
 		this.move = move;
 		this.move(move);
 	}
@@ -138,6 +142,10 @@ public class DraughtsNode {
 			System.out.println("x");
 			return;
 		}
+		if (depth > tree.depth) {
+			System.out.println("!");
+			return;
+		}
 		
 		char newPlayer = 'b';
 		if (lastPlayer == 'b')
@@ -151,7 +159,7 @@ public class DraughtsNode {
 			newNode.populate();
 		}
 		System.out.println(".");
-
+		
 	}
 	
 	public int getWhites() {

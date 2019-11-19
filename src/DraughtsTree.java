@@ -3,6 +3,7 @@ import java.util.Stack;
 
 public class DraughtsTree {
 	int width = 3, height = 3, totalSpots = width * height * 2;
+	int depth = 5, turnsToQuit = 10;
 
 	DraughtsNode root;
 
@@ -230,6 +231,8 @@ public class DraughtsTree {
 		return moves;
 	}
 	
+	
+	// Actual Movement Commands
 	public boolean checkIfLegalNextMove(Move move) {
 		for(DraughtsNode child : root.children) {
 			if(child.move.equals(move)) {
@@ -242,6 +245,11 @@ public class DraughtsTree {
 		for(DraughtsNode child : root.children) {
 			if(child.move.equals(move)) {
 				this.root = child;
+				root.depth = 0;
+				root.movesSinceCap = 0;
+				root.children = new ArrayList<DraughtsNode>();
+				this.populate();
+				return;
 			}
 		}
 	}
@@ -249,15 +257,17 @@ public class DraughtsTree {
 	
 	
 	// Recursive Populate -- Don't use, causes stack overflow.
-	/*
+	
 	public void populate() {
 		System.out.println("Populating Tree... ");
+		long startTime = System.currentTimeMillis();
 		root.populate();
-		System.out.println("Done.");
+		long endTime = System.currentTimeMillis();
+		long totalTime = endTime - startTime;
+		System.out.println("Done in: " + totalTime + "ms");
 	}
-	*/
 	
-	
+	/*
 	public void populate() {
 		System.out.println("Populating Tree... ");
 
@@ -308,7 +318,7 @@ public class DraughtsTree {
 		System.out.println(iteration);
 		System.out.println(complete);
 	}
-	
+	*/
 	
 	public int getRow(int position) {
 		return ((position - 1) / width) + 1;
