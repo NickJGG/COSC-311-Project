@@ -99,7 +99,7 @@ public class DraughtsTree {
 			base = source + width;
 
 			if (row < height - 1) {
-				if (col < width && getPlayer(node, source, base + width + 1) == 'w')
+				if (col <= width && getPlayer(node, source, base + width + 1) == 'w')
 					moves.add(new Move(player, source, base + width + 1, true));
 
 				if (col > 1 && getPlayer(node, source, base + width - 1) == 'w')
@@ -212,11 +212,13 @@ public class DraughtsTree {
 				ArrayList<Move> legalMoves = getLegalMoves(node, i);
 				if (legalMoves != null) {
 					for (Move m : legalMoves) {
-						moves.add(m);
-						if (m.isCapture()) {
-							canCapture = true;
-						} else {
-							movesNoCapture.add(m);
+						if(this.isLegalMove(node, m)) {
+							moves.add(m);
+							if (m.isCapture()) {
+								canCapture = true;
+							} else {
+								movesNoCapture.add(m);
+							}
 						}
 					}
 				}
