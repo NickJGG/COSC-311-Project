@@ -97,7 +97,7 @@ public class DraughtsTree {
 		if (player == 'b') {
 			base = source + width;
 
-			if (row < height - 1) {
+			if (row < height * 2 - 1) {
 				if (col < width && getPlayer(node, source, base + width + 1) == 'w')
 					moves.add(new Move(player, source, base + width + 1, true));
 
@@ -187,62 +187,55 @@ public class DraughtsTree {
 	}
 
 	public ArrayList<Move> getAllLegalMoves(DraughtsNode node) {
-		ArrayList<Move> moves = new ArrayList<>();
-
-		for (int i = 1; i <= totalSpots; i++) {
-			ArrayList<Move> legalMoves = getLegalMoves(node, i);
-
-			if (legalMoves != null)
-				moves.addAll(legalMoves);
-
-		}
+		ArrayList<Move> moves = getAllLegalMovesPlayer(node, 'w');
+		moves.addAll(getAllLegalMovesPlayer(node, 'b'));
+		
 		return moves;
 	}
 
 	// Get all the Legal moves for a given player
 	public ArrayList<Move> getAllLegalMovesPlayer(DraughtsNode node, char player) {
-		ArrayList<Move> moves = new ArrayList<>();
-		ArrayList<Move> movesNoCapture = new ArrayList<>();
+		ArrayList<Move> moves = new ArrayList<>(),
+						movesNoCapture = new ArrayList<>();
 
 		boolean canCapture = false;
 
 		for (int i = 1; i <= totalSpots; i++) {
 			if (getPlayer(node, i) == player) {
 				ArrayList<Move> legalMoves = getLegalMoves(node, i);
+				
 				if (legalMoves != null) {
 					for (Move m : legalMoves) {
 						moves.add(m);
-						if (m.isCapture()) {
+						
+						if (m.isCapture())
 							canCapture = true;
-						} else {
+						else
 							movesNoCapture.add(m);
-						}
 					}
 				}
 			}
 		}
-		// Force a capture, if can capture
 		
-		if (canCapture) {
+		// Force a capture, if can capture
+		if (canCapture)
 			moves.removeAll(movesNoCapture);
-		}
 
 		return moves;
 	}
 	
 	public boolean checkIfLegalNextMove(Move move) {
-		for(DraughtsNode child : root.children) {
-			if(child.move.equals(move)) {
+		for (DraughtsNode child : root.children) {
+			if (child.move.equals(move))
 				return true;
-			}
 		}
+		
 		return false;
 	}
 	public void updateRoot(Move move) {
 		for(DraughtsNode child : root.children) {
-			if(child.move.equals(move)) {
+			if(child.move.equals(move))
 				this.root = child;
-			}
 		}
 	}
 	
@@ -268,28 +261,27 @@ public class DraughtsTree {
 
 		while (!nodes.isEmpty()) {
 			iteration++;
-			if(iteration%10 == 0) {
-				System.out.println("");
-			}
+			
 			DraughtsNode node = nodes.pop();
+			
+			if (iteration % 10 == 0)
+				System.out.println("");
 
-			if (isComplete(node)) {
+			if (isComplete(node))
 				complete++;
-				
-			}
 
 			if (isComplete(node)) {
-				System.out.print("*");
+				System.out.print("*"); // COMPLETE
+				
 				continue;
 			}
 			if (node.getMovesSinceCap() >= 5) {
-				System.out.print("x");
+				System.out.print("x"); // TOO LONG SINCE CAPTURE 
+				
 				continue;
 			}
 			
-			char newPlayer = 'b';
-			if (node.lastPlayer == 'b')
-				newPlayer = 'w';
+			char newPlayer = node.getLastPlayer() == 'b' ? 'w' : 'b';
 			
 			for (Move move : getAllLegalMovesPlayer(node, newPlayer)) {
 				DraughtsNode newNode = new DraughtsNode(this, node, move);
@@ -298,15 +290,18 @@ public class DraughtsTree {
 				nodes.push(newNode);
 				node.addChild(newNode);
 				count++;
+				
+				//newNode.printBoard();
 			}
-			System.out.print(".");
+			
+			System.out.print("."); // REGULAR ITERATION
 		}
 
 		System.out.println("Done.");
 
-		System.out.println(count);
-		System.out.println(iteration);
-		System.out.println(complete);
+		System.out.println("Count: " + count);
+		System.out.println("Iteration: " + iteration);
+		System.out.println("Completed: " + complete);
 	}
 	
 	

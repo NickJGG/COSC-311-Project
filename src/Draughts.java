@@ -19,10 +19,13 @@ public class Draughts {
 	}
 	
 	public void play() {
-		long startTime = System.currentTimeMillis();
+		long startTime = System.currentTimeMillis(), endTime, totalTime;
+		
 		tree.populate();
-		long endTime = System.currentTimeMillis();
-		long totalTime = endTime - startTime;
+		
+		endTime = System.currentTimeMillis();
+		totalTime = endTime - startTime;
+		
 		System.out.println("Done in: " + totalTime + "ms");
 	}
 	

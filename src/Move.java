@@ -14,11 +14,11 @@ public class Move {
 	public Move(char player, int source, int dest) {
 		this.player = player;
 		this.source = source;
-		this.dest = dest;
-		capture = false;
-		if(Math.abs(source - dest) > 4) {
+		this.dest = dest;	
+		this.capture = false;
+		
+		if (Math.abs(source - dest) > 4)
 			capture = true;
-		}
 	}
 	
 	public char getPlayer() {

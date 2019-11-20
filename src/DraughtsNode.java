@@ -85,12 +85,12 @@ public class DraughtsNode {
 	}
 	
 	public void move(Move m) {
-		int source = m.getSource();
-		int destination = m.getDest();
+		int source = m.getSource(),
+			destination = m.getDest();
+		
 		char player = m.getPlayer();
 		
 		if (tree.isLegalMove(this, m)) {
-			
 			movesSinceCap++;
 			
 			if (player == 'w') {
@@ -132,16 +132,16 @@ public class DraughtsNode {
 	public void populate() {
 		if (tree.isComplete(this)) {
 			System.out.println("*");
+			
 			return;
 		}
 		if (getMovesSinceCap() >= 5) {
 			System.out.println("x");
+			
 			return;
 		}
 		
-		char newPlayer = 'b';
-		if (lastPlayer == 'b')
-			newPlayer = 'w';
+		char newPlayer = lastPlayer == 'b' ? 'w' : 'b';
 		
 		for (Move move : tree.getAllLegalMovesPlayer(this, newPlayer)) {
 			DraughtsNode newNode = new DraughtsNode(this.tree, this, move);
@@ -178,7 +178,6 @@ public class DraughtsNode {
 	public void setLastPlayer(char lastPlayer) {
 		this.lastPlayer = lastPlayer;
 	}
-	
 	public void addChild(DraughtsNode node) {
 		this.children.add(node);
 	}
