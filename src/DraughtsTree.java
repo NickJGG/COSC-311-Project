@@ -3,6 +3,7 @@ import java.util.Stack;
 
 public class DraughtsTree {
 	int width = 3, height = 3, totalSpots = width * height * 2;
+	int depth = 5, turnsToQuit = 10;
 
 	DraughtsNode root;
 
@@ -189,7 +190,7 @@ public class DraughtsTree {
 	public ArrayList<Move> getAllLegalMoves(DraughtsNode node) {
 		ArrayList<Move> moves = getAllLegalMovesPlayer(node, 'w');
 		moves.addAll(getAllLegalMovesPlayer(node, 'b'));
-		
+
 		return moves;
 	}
 
@@ -203,54 +204,66 @@ public class DraughtsTree {
 		for (int i = 1; i <= totalSpots; i++) {
 			if (getPlayer(node, i) == player) {
 				ArrayList<Move> legalMoves = getLegalMoves(node, i);
-				
+
 				if (legalMoves != null) {
 					for (Move m : legalMoves) {
-						moves.add(m);
-						
-						if (m.isCapture())
-							canCapture = true;
-						else
-							movesNoCapture.add(m);
+						if(this.isLegalMove(node, m)) {
+							moves.add(m);
+							if (m.isCapture()) {
+								canCapture = true;
+							} else {
+								movesNoCapture.add(m);
+							}
+						}
 					}
 				}
 			}
 		}
-		
+
 		// Force a capture, if can capture
 		if (canCapture)
 			moves.removeAll(movesNoCapture);
 
 		return moves;
 	}
-	
+
+
+	// Actual Movement Commands
 	public boolean checkIfLegalNextMove(Move move) {
 		for (DraughtsNode child : root.children) {
 			if (child.move.equals(move))
 				return true;
 		}
-		
+
 		return false;
 	}
 	public void updateRoot(Move move) {
 		for(DraughtsNode child : root.children) {
-			if(child.move.equals(move))
+			if(child.move.equals(move)) {
 				this.root = child;
+				root.depth = 0;
+				root.movesSinceCap = 0;
+				root.children = new ArrayList<DraughtsNode>();
+				this.populate();
+				return;
+			}
 		}
 	}
-	
-	
+
+
 	
 	// Recursive Populate -- Don't use, causes stack overflow.
-	/*
+
 	public void populate() {
 		System.out.println("Populating Tree... ");
+		long startTime = System.currentTimeMillis();
 		root.populate();
-		System.out.println("Done.");
+		long endTime = System.currentTimeMillis();
+		long totalTime = endTime - startTime;
+		System.out.println("Done in: " + totalTime + "ms");
 	}
-	*/
-	
-	
+
+	/*
 	public void populate() {
 		System.out.println("Populating Tree... ");
 
@@ -261,9 +274,9 @@ public class DraughtsTree {
 
 		while (!nodes.isEmpty()) {
 			iteration++;
-			
+
 			DraughtsNode node = nodes.pop();
-			
+
 			if (iteration % 10 == 0)
 				System.out.println("");
 
@@ -272,17 +285,17 @@ public class DraughtsTree {
 
 			if (isComplete(node)) {
 				System.out.print("*"); // COMPLETE
-				
+
 				continue;
 			}
 			if (node.getMovesSinceCap() >= 5) {
-				System.out.print("x"); // TOO LONG SINCE CAPTURE 
-				
+				System.out.print("x"); // TOO LONG SINCE CAPTURE
+
 				continue;
 			}
-			
+
 			char newPlayer = node.getLastPlayer() == 'b' ? 'w' : 'b';
-			
+
 			for (Move move : getAllLegalMovesPlayer(node, newPlayer)) {
 				DraughtsNode newNode = new DraughtsNode(this, node, move);
 				//newNode.move(move);
@@ -290,10 +303,10 @@ public class DraughtsTree {
 				nodes.push(newNode);
 				node.addChild(newNode);
 				count++;
-				
+
 				//newNode.printBoard();
 			}
-			
+
 			System.out.print("."); // REGULAR ITERATION
 		}
 
@@ -303,8 +316,8 @@ public class DraughtsTree {
 		System.out.println("Iteration: " + iteration);
 		System.out.println("Completed: " + complete);
 	}
-	
-	
+	*/
+
 	public int getRow(int position) {
 		return ((position - 1) / width) + 1;
 	}
