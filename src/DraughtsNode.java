@@ -149,7 +149,7 @@ public class DraughtsNode {
 			return;
 		}
 		
-		char newPlayer = lastPlayer == 'b' ? 'w' : 'b';
+		char newPlayer = lastPlayer == 'w' ? 'b' : 'w';
 		
 		for (Move move : tree.getAllLegalMovesPlayer(this, newPlayer)) {
 			DraughtsNode newNode = new DraughtsNode(this.tree, this, move);

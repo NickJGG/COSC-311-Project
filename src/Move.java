@@ -15,10 +15,7 @@ public class Move {
 		this.player = player;
 		this.source = source;
 		this.dest = dest;	
-		this.capture = false;
-		
-		if (Math.abs(source - dest) > 4)
-			capture = true;
+		this.capture = Math.abs(source - dest) > 4;
 	}
 	
 	public char getPlayer() {

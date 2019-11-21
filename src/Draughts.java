@@ -20,7 +20,6 @@ public class Draughts {
 
 	public void play() {
 		tree.populate();
-
 	}
 
 	public DraughtsTree getTree() {

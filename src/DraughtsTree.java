@@ -11,7 +11,6 @@ public class DraughtsTree {
 		this.root = new DraughtsNode(this, 0b00000000000000000000111111111111, 0b11111111111100000000000000000000,
 				0b00000000000000000000000000000000, 0);
 	}
-
 	public DraughtsTree(DraughtsNode root) {
 		this.root = root;
 	}
@@ -19,50 +18,40 @@ public class DraughtsTree {
 	public boolean isComplete(DraughtsNode node) {
 		return whiteWin(node) || blackWin(node) || getAllLegalMoves(node).size() == 0;
 	}
-
 	public boolean whiteWin(DraughtsNode node) {
 		return node.blacks == 0 || getAllLegalMovesPlayer(node, 'b').size() == 0;
 	}
-
 	public boolean blackWin(DraughtsNode node) {
 		return node.whites == 0 || getAllLegalMovesPlayer(node, 'w').size() == 0;
 	}
-
 	public boolean pieceExists(DraughtsNode node, int position) {
 		int digit = 1 << (totalSpots - position);
 
 		return (node.whites & digit) != 0 || (node.blacks & digit) != 0;
 	}
-
 	public boolean pieceExists(DraughtsNode node, int board, int position) {
 		int digit = 1 << (totalSpots - position);
 
 		return (digit & board) != 0;
 	}
-
 	public boolean inRange(int position) {
 		return position >= 0 && position <= totalSpots;
 	}
-
 	public boolean isLegalMove(DraughtsNode node, Move m) {
-		int source = m.getSource();
-		int destination = m.getDest();
+		int source = m.getSource(),
+			destination = m.getDest();
 
 		if (!inRange(source) || !pieceExists(node, source) || !inRange(destination) || pieceExists(node, destination))
 			return false;
 
-		boolean containDest = false;
-
 		for (Move n : getLegalMoves(node, source)) {
 			if (m.equals(n)) {
-				containDest = true;
+				return true;
 			}
 		}
 
-		// return getLegalMoves(node, source).contains(m);
-		return containDest;
+		return false;
 	}
-
 	// Returns true if that position is a King
 	public boolean isKing(DraughtsNode node, int position) {
 		return (((1 << totalSpots - position) & node.kings) != 0);
@@ -74,7 +63,6 @@ public class DraughtsTree {
 
 		return 'b';
 	}
-
 	public char getPlayer(DraughtsNode node, int source, int destination) {
 		if (((1 << totalSpots - getPositionBetween(source, destination)) & node.whites) != 0)
 			return 'w';
@@ -89,7 +77,7 @@ public class DraughtsTree {
 		ArrayList<Move> moves = new ArrayList<>();
 
 		if (!inRange(source) || !pieceExists(node, source))
-			return null;
+			return moves;
 
 		char player = getPlayer(node, source);
 
@@ -121,10 +109,10 @@ public class DraughtsTree {
 				base = source - width;
 
 				if (row > 2) {
-					if (col > 1 && getPlayer(node, source, base - width - 1) == 'b')
+					if (col > 1 && getPlayer(node, source, base - width - 1) == 'w')
 						moves.add(new Move(player, source, base - width - 1, true));
 
-					if (col < 4 && getPlayer(node, source, base - width + 1) == 'b')
+					if (col < 4 && getPlayer(node, source, base - width + 1) == 'w')
 						moves.add(new Move(player, source, base - width + 1, true));
 				}
 
@@ -146,7 +134,7 @@ public class DraughtsTree {
 				if (col > 1 && getPlayer(node, source, base - width - 1) == 'b')
 					moves.add(new Move(player, source, base - width - 1, true));
 
-				if (col < 4 && getPlayer(node, source, base - width + 1) == 'b')
+				if (col < width && getPlayer(node, source, base - width + 1) == 'b')
 					moves.add(new Move(player, source, base - width + 1, true));
 			}
 
@@ -164,11 +152,11 @@ public class DraughtsTree {
 			if (isKing(node, source)) {
 				base = source + width;
 
-				if (row < height - 1) {
-					if (col < width && getPlayer(node, source, base + width + 1) == 'w')
+				if (row < height * 2 - 1) {
+					if (col < width && getPlayer(node, source, base + width + 1) == 'b')
 						moves.add(new Move(player, source, base + width + 1, true));
 
-					if (col > 1 && getPlayer(node, source, base + width - 1) == 'w')
+					if (col > 1 && getPlayer(node, source, base + width - 1) == 'b')
 						moves.add(new Move(player, source, base + width - 1, true));
 				}
 
@@ -186,47 +174,34 @@ public class DraughtsTree {
 
 		return moves;
 	}
-
 	public ArrayList<Move> getAllLegalMoves(DraughtsNode node) {
 		ArrayList<Move> moves = getAllLegalMovesPlayer(node, 'w');
 		moves.addAll(getAllLegalMovesPlayer(node, 'b'));
 
 		return moves;
 	}
-
 	// Get all the Legal moves for a given player
 	public ArrayList<Move> getAllLegalMovesPlayer(DraughtsNode node, char player) {
 		ArrayList<Move> moves = new ArrayList<>(),
-						movesNoCapture = new ArrayList<>();
-
-		boolean canCapture = false;
-
+						movesNoCapture = new ArrayList<>();	
+			
 		for (int i = 1; i <= totalSpots; i++) {
 			if (getPlayer(node, i) == player) {
 				ArrayList<Move> legalMoves = getLegalMoves(node, i);
 
-				if (legalMoves != null) {
-					for (Move m : legalMoves) {
-						if(this.isLegalMove(node, m)) {
+				for (Move m : legalMoves) {
+					if (this.isLegalMove(node, m)) {							
+						if (m.isCapture())
 							moves.add(m);
-							if (m.isCapture()) {
-								canCapture = true;
-							} else {
-								movesNoCapture.add(m);
-							}
-						}
+						else
+							movesNoCapture.add(m);
 					}
 				}
 			}
 		}
 
-		// Force a capture, if can capture
-		if (canCapture)
-			moves.removeAll(movesNoCapture);
-
-		return moves;
+		return moves.size() > 0 ? moves : movesNoCapture;
 	}
-
 
 	// Actual Movement Commands
 	public boolean checkIfLegalNextMove(Move move) {
@@ -249,9 +224,6 @@ public class DraughtsTree {
 			}
 		}
 	}
-
-
-	
 	// Recursive Populate -- Don't use, causes stack overflow.
 
 	public void populate() {
