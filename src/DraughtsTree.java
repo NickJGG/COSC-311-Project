@@ -112,7 +112,7 @@ public class DraughtsTree {
 					if (col > 1 && getPlayer(node, source, base - width - 1) == 'w')
 						moves.add(new Move(player, source, base - width - 1, true));
 
-					if (col < 4 && getPlayer(node, source, base - width + 1) == 'w')
+					if (col < width && getPlayer(node, source, base - width + 1) == 'w')
 						moves.add(new Move(player, source, base - width + 1, true));
 				}
 
