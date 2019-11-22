@@ -1,5 +1,8 @@
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Stack;
+
+import tictactoe.TicTacNode;
 
 public class DraughtsTree {
 	int width = 3, height = 3, totalSpots = width * height * 2;
@@ -219,7 +222,9 @@ public class DraughtsTree {
 				root.depth = 0;
 				root.movesSinceCap = 0;
 				root.children = new ArrayList<DraughtsNode>();
+				
 				this.populate();
+				
 				return;
 			}
 		}
@@ -235,60 +240,57 @@ public class DraughtsTree {
 		System.out.println("Done in: " + totalTime + "ms");
 	}
 
-	/*
-	public void populate() {
-		System.out.println("Populating Tree... ");
-
-		Stack<DraughtsNode> nodes = new Stack<>(); // Using a stack + while loop reduces memory usage
-		nodes.add(root);
-
-		int count = 0, complete = 0, iteration = 0;
-
-		while (!nodes.isEmpty()) {
-			iteration++;
-
-			DraughtsNode node = nodes.pop();
-
-			if (iteration % 10 == 0)
-				System.out.println("");
-
-			if (isComplete(node))
-				complete++;
-
-			if (isComplete(node)) {
-				System.out.print("*"); // COMPLETE
-
-				continue;
+	Move getBestMove(DraughtsNode node) {
+		int i = (new Random()).nextInt(node.getChildren().size()),
+				bestScore = (int) Double.NEGATIVE_INFINITY;
+		
+		DraughtsNode bestNode = node.getChildren().get(i);
+		
+		for (DraughtsNode child : node.getChildren()) { // Find child with highest score
+			int score = minimax(child, false);
+			
+			if (score > bestScore) {
+				bestScore = score;
+				bestNode = child;
 			}
-			if (node.getMovesSinceCap() >= 5) {
-				System.out.print("x"); // TOO LONG SINCE CAPTURE
-
-				continue;
-			}
-
-			char newPlayer = node.getLastPlayer() == 'b' ? 'w' : 'b';
-
-			for (Move move : getAllLegalMovesPlayer(node, newPlayer)) {
-				DraughtsNode newNode = new DraughtsNode(this, node, move);
-				//newNode.move(move);
-				newNode.setLastPlayer(move.getPlayer());
-				nodes.push(newNode);
-				node.addChild(newNode);
-				count++;
-
-				//newNode.printBoard();
-			}
-
-			System.out.print("."); // REGULAR ITERATION
 		}
-
-		System.out.println("Done.");
-
-		System.out.println("Count: " + count);
-		System.out.println("Iteration: " + iteration);
-		System.out.println("Completed: " + complete);
+		
+		return bestNode.move;
 	}
-	*/
+	
+	int minimax(DraughtsNode node, boolean maximizing) {
+		int score = evaluateBoard(node);
+		
+		if (score == 10 || score == -10) // If a player has won
+			return score;
+		
+		if (node.getChildren().size() == 0) // If no more moves left
+			return 0;
+		
+		int bestScore = 0;
+		
+		if (maximizing) { // Alternating min/max
+			bestScore = (int) Double.NEGATIVE_INFINITY; // Some out of reach number
+			
+			for (DraughtsNode child : node.getChildren()) { // Get highest score of current node
+				bestScore = Math.max(bestScore, minimax(child, false));
+			}
+		} else {
+			bestScore = (int) Double.POSITIVE_INFINITY; // Some out of reach number
+			
+			for (DraughtsNode child : node.getChildren()) { // Get lowest score of current node
+				bestScore = Math.min(bestScore, minimax(child, false));
+			}
+		}
+		
+		return bestScore;
+	}
+	int evaluateBoard(DraughtsNode node) {
+		if (this.whiteWin(node))
+			return -10;
+		
+		return this.isComplete(node) ? 10 : 0;
+	}
 
 	public int getRow(int position) {
 		return ((position - 1) / width) + 1;

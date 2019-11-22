@@ -6,6 +6,8 @@ import java.awt.GridLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -65,7 +67,6 @@ public class GuiBoard {
 				mainPanel.add(dummy);
 			}
 		}
-		
 		
 		// Information Panel on the current game. Might be useful for stuff later.
 		infoPanel = new JPanel(new BorderLayout());
@@ -169,30 +170,40 @@ public class GuiBoard {
 		public void mouseClicked(MouseEvent e) {
 			DraughtsNode root = board.tree.getRoot();
 			
-			if(firstSelected != 0 && secondSelected == 0) {
-				secondSelected = position;
-				
-				System.out.println(position);
-				
-				Move m = new Move(board.tree.getPlayer(root, firstSelected), firstSelected, secondSelected);
-				//System.out.println(m.toString());
-				
-				if(board.tree.checkIfLegalNextMove(m)) {
-					board.tree.updateRoot(m);
-				}
-				
-				for(DraughtsNode d : board.tree.root.getChildren()) {
-					System.out.println(d.move.toString());
-				}
-				
-				board.update();
-				
-				
-			} else if (board.tree.pieceExists(root, position)){
+			if (board.tree.pieceExists(root, root.getWhites(), position)) {
 				firstSelected = position;
 				secondSelected = 0;
 				
 				System.out.print(position + " > ");
+			} else if (firstSelected != 0 && secondSelected == 0) {
+				secondSelected = position;
+				
+				System.out.println(position);
+				
+				Move move = new Move(board.tree.getPlayer(root, firstSelected), firstSelected, secondSelected);
+				
+				if (board.tree.checkIfLegalNextMove(move)) {
+					board.tree.updateRoot(move);
+					
+					root = board.tree.getRoot();
+					
+					board.update();
+					
+					// AI makes their move
+					board.tree.updateRoot(board.tree.getBestMove(root));
+					
+					TimerTask sleep = new TimerTask() {
+					      public void run() {
+					    	  board.update();
+					      }
+					};
+					
+					new Timer().schedule(sleep, 600);
+				}
+				
+				for (DraughtsNode d : root.getChildren()) {
+					System.out.println(d.move.toString());
+				}
 			}
 		}
 		

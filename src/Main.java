@@ -7,10 +7,5 @@ public class Main {
 		
 		GuiBoard b = new GuiBoard(game.getTree());
 		b.update();
-		
-		
-//		for(ArrayList<Integer> legalMoves : game.getTree().getAllLegalMoves(game.getTree().root)) {
-//			System.out.println(legalMoves);
-//		}
 	}
 }
