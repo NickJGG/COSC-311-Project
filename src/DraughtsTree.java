@@ -183,6 +183,7 @@ public class DraughtsTree {
 
 		return moves;
 	}
+	
 	// Get all the Legal moves for a given player
 	public ArrayList<Move> getAllLegalMovesPlayer(DraughtsNode node, char player) {
 		ArrayList<Move> moves = new ArrayList<>(),
@@ -239,54 +240,7 @@ public class DraughtsTree {
 		long totalTime = endTime - startTime;
 		System.out.println("Done in: " + totalTime + "ms");
 	}
-
-	Move getBestMove(DraughtsNode node) {
-		int i = (new Random()).nextInt(node.getChildren().size()),
-				bestScore = (int) Double.NEGATIVE_INFINITY;
-		
-		DraughtsNode bestNode = node.getChildren().get(i);
-		
-		for (DraughtsNode child : node.getChildren()) { // Find child with highest score
-			int score = minimax(child, false);
-			
-			if (score > bestScore) {
-				bestScore = score;
-				bestNode = child;
-			}
-		}
-		
-		return bestNode.move;
-	}
 	
-	int minimax(DraughtsNode node, boolean maximizing) {
-		int score = evaluateBoard(node);
-		
-		if (score == 100 || score == -100) // If a player has won
-			return score;
-		
-		if (node.getChildren().size() == 0) // If no more moves left
-			return score;
-		
-		int bestScore = 0;
-		
-		if (maximizing) { // Alternating min/max
-			bestScore = -1000;
-			
-			for (DraughtsNode child : node.getChildren()) { // Get highest score of current node
-				bestScore = Math.max(bestScore, minimax(child, false));
-			}
-		} else {
-			bestScore = 1000;
-			
-			for (DraughtsNode child : node.getChildren()) { // Get lowest score of current node
-				bestScore = Math.min(bestScore, minimax(child, true));
-			}
-		}
-		
-		//System.out.print("(" + node.move.toString() + " = " + (bestScore * depth) + " // cap: " + node.move.isCapture() + " ) ");
-		
-		return bestScore;
-	}
 	int evaluateBoard(DraughtsNode node) {
 		if (this.whiteWin(node))
 			return -100;

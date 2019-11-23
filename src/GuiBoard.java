@@ -192,12 +192,15 @@ public class GuiBoard {
 					
 					String temp = "";
 					
-					for (DraughtsNode child : root.getChildren()) {
-						temp += child.move.getSource() + " > " + child.move.getDest() + " = " + board.tree.minimax(child, false) + "\n";
-					}
+					//for (DraughtsNode child : root.getChildren()) {
+					//	temp += child.move.getSource() + " > " + child.move.getDest() + " = " + new MiniMax('b').minimax(child, false, board.tree) + "\n";
+					//}
 					
 					// AI makes their move
-					board.tree.updateRoot(board.tree.getBestMove(root));
+					//board.tree.updateRoot(board.tree.getBestMove(root));
+					
+					board.tree.updateRoot(new RandomMoves('b').makeMove(board.tree));
+					
 					
 					TimerTask sleep = new TimerTask() {
 					      public void run() {
@@ -213,21 +216,6 @@ public class GuiBoard {
 					nodes.push(root);
 					
 					int count = 0;
-					
-					/*while (!nodes.isEmpty()) {						
-						DraughtsNode node = nodes.pop();
-						
-						count++;
-						
-						System.out.print(board.tree.minimax(node, true) + " | ");
-						
-						for (DraughtsNode child : node.getChildren()) {
-							nodes.push(child);
-						}
-						
-						if (count % 10 == 0)
-							System.out.println();
-					}*/
 					
 					System.out.println(temp + "\n");
 				}
