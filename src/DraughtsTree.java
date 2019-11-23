@@ -91,20 +91,20 @@ public class DraughtsTree {
 
 			if (row < height * 2 - 1) {
 				if (col < width && getPlayer(node, source, base + width + 1) == 'w')
-					moves.add(new Move(player, source, base + width + 1, true));
+					moves.add(new Move(player, source, base + width + 1, this));
 
 				if (col > 1 && getPlayer(node, source, base + width - 1) == 'w')
-					moves.add(new Move(player, source, base + width - 1, true));
+					moves.add(new Move(player, source, base + width - 1, this));
 			}
 
 			if (row < height * 2) {
-				moves.add(new Move(player, source, base, false));
+				moves.add(new Move(player, source, base, this));
 
 				if (row % 2 == 0) {
 					if (col > 1)
-						moves.add(new Move(player, source, base - 1, false));
+						moves.add(new Move(player, source, base - 1, this));
 				} else if (col < width)
-					moves.add(new Move(player, source, base + 1, false));
+					moves.add(new Move(player, source, base + 1, this));
 			}
 
 			// If king, add king moves
@@ -113,20 +113,20 @@ public class DraughtsTree {
 
 				if (row > 2) {
 					if (col > 1 && getPlayer(node, source, base - width - 1) == 'w')
-						moves.add(new Move(player, source, base - width - 1, true));
+						moves.add(new Move(player, source, base - width - 1, this));
 
 					if (col < width && getPlayer(node, source, base - width + 1) == 'w')
-						moves.add(new Move(player, source, base - width + 1, true));
+						moves.add(new Move(player, source, base - width + 1, this));
 				}
 
 				if (row > 1) {
-					moves.add(new Move(player, source, base, false));
+					moves.add(new Move(player, source, base, this));
 
 					if (row % 2 == 0) {
 						if (col > 1)
-							moves.add(new Move(player, source, base - 1, false));
+							moves.add(new Move(player, source, base - 1, this));
 					} else if (col < width)
-						moves.add(new Move(player, source, base + 1, false));
+						moves.add(new Move(player, source, base + 1, this));
 				}
 			}
 
@@ -135,20 +135,20 @@ public class DraughtsTree {
 
 			if (row > 2) {
 				if (col > 1 && getPlayer(node, source, base - width - 1) == 'b')
-					moves.add(new Move(player, source, base - width - 1, true));
+					moves.add(new Move(player, source, base - width - 1, this));
 
 				if (col < width && getPlayer(node, source, base - width + 1) == 'b')
-					moves.add(new Move(player, source, base - width + 1, true));
+					moves.add(new Move(player, source, base - width + 1, this));
 			}
 
 			if (row > 1) {
-				moves.add(new Move(player, source, base, false));
+				moves.add(new Move(player, source, base, this));
 
 				if (row % 2 == 0) {
 					if (col > 1)
-						moves.add(new Move(player, source, base - 1, false));
+						moves.add(new Move(player, source, base - 1, this));
 				} else if (col < width)
-					moves.add(new Move(player, source, base + 1, false));
+					moves.add(new Move(player, source, base + 1, this));
 			}
 
 			// If king, add king moves
@@ -157,20 +157,20 @@ public class DraughtsTree {
 
 				if (row < height * 2 - 1) {
 					if (col < width && getPlayer(node, source, base + width + 1) == 'b')
-						moves.add(new Move(player, source, base + width + 1, true));
+						moves.add(new Move(player, source, base + width + 1, this));
 
 					if (col > 1 && getPlayer(node, source, base + width - 1) == 'b')
-						moves.add(new Move(player, source, base + width - 1, true));
+						moves.add(new Move(player, source, base + width - 1, this));
 				}
 
 				if (row < height * 2) {
-					moves.add(new Move(player, source, base, false));
+					moves.add(new Move(player, source, base, this));
 
 					if (row % 2 == 0) {
 						if (col > 1)
-							moves.add(new Move(player, source, base - 1, false));
+							moves.add(new Move(player, source, base - 1, this));
 					} else if (col < width)
-						moves.add(new Move(player, source, base + 1, false));
+						moves.add(new Move(player, source, base + 1, this));
 				}
 			}
 		}
@@ -261,35 +261,54 @@ public class DraughtsTree {
 	int minimax(DraughtsNode node, boolean maximizing) {
 		int score = evaluateBoard(node);
 		
-		if (score == 10 || score == -10) // If a player has won
+		if (score == 100 || score == -100) // If a player has won
 			return score;
 		
 		if (node.getChildren().size() == 0) // If no more moves left
-			return 0;
+			return score;
 		
 		int bestScore = 0;
 		
 		if (maximizing) { // Alternating min/max
-			bestScore = (int) Double.NEGATIVE_INFINITY; // Some out of reach number
+			bestScore = -1000;
 			
 			for (DraughtsNode child : node.getChildren()) { // Get highest score of current node
 				bestScore = Math.max(bestScore, minimax(child, false));
 			}
 		} else {
-			bestScore = (int) Double.POSITIVE_INFINITY; // Some out of reach number
+			bestScore = 1000;
 			
 			for (DraughtsNode child : node.getChildren()) { // Get lowest score of current node
-				bestScore = Math.min(bestScore, minimax(child, false));
+				bestScore = Math.min(bestScore, minimax(child, true));
 			}
 		}
+		
+		//System.out.print("(" + node.move.toString() + " = " + (bestScore * depth) + " // cap: " + node.move.isCapture() + " ) ");
 		
 		return bestScore;
 	}
 	int evaluateBoard(DraughtsNode node) {
 		if (this.whiteWin(node))
-			return -10;
+			return -100;
 		
-		return this.isComplete(node) ? 10 : 0;
+		if (this.blackWin(node))
+			return 100;
+		
+		Move move = node.move;
+		
+		int multiplier = move.getPlayer() == 'w' ? -1 : 1, 
+			value = 0,
+			depth = node.depth - root.depth;
+		
+		if (move.isCapture())
+			value += 5 * multiplier;
+		
+		if (move.isKing())
+			value += 4 * multiplier;
+		
+		System.out.print("(" + move.toString() + " = " + (value * depth) + " // cap: " + move.isCapture() + " // depth: " + node.depth + " ) ");
+		
+		return value * depth;
 	}
 
 	public int getRow(int position) {

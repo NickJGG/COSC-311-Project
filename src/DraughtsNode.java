@@ -9,7 +9,7 @@ public class DraughtsNode {
 	//The depth of this node in the tree
 	int depth = 0;
 	
-	char lastPlayer;
+	char lastPlayer = 'b';
 	
 	// 0 = Ongoing, 1 = white win, 2 = black win, 3 = tie;
 	int winState = 0;
@@ -135,17 +135,18 @@ public class DraughtsNode {
 	// Recursive populate
 	public void populate() {
 		if (tree.isComplete(this)) {
-			System.out.println("*");
+			//System.out.println("*");
 			
 			return;
 		}
 		if (getMovesSinceCap() >= 5) {
-			System.out.println("x");
+			//System.out.println("x");
 			
 			return;
 		}
 		if (depth > tree.depth) {
-			System.out.println("!");
+			//System.out.println("!");
+			
 			return;
 		}
 		
@@ -158,8 +159,8 @@ public class DraughtsNode {
 			this.addChild(newNode);
 			newNode.populate();
 		}
-		System.out.println(".");
 		
+		//System.out.println(".");
 	}
 	
 	public int getWhites() {

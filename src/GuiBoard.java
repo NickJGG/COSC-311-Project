@@ -6,6 +6,7 @@ import java.awt.GridLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
+import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -180,7 +181,7 @@ public class GuiBoard {
 				
 				System.out.println(position);
 				
-				Move move = new Move(board.tree.getPlayer(root, firstSelected), firstSelected, secondSelected);
+				Move move = new Move(board.tree.getPlayer(root, firstSelected), firstSelected, secondSelected, board.tree);
 				
 				if (board.tree.checkIfLegalNextMove(move)) {
 					board.tree.updateRoot(move);
@@ -188,6 +189,12 @@ public class GuiBoard {
 					root = board.tree.getRoot();
 					
 					board.update();
+					
+					String temp = "";
+					
+					for (DraughtsNode child : root.getChildren()) {
+						temp += child.move.getSource() + " > " + child.move.getDest() + " = " + board.tree.minimax(child, false) + "\n";
+					}
 					
 					// AI makes their move
 					board.tree.updateRoot(board.tree.getBestMove(root));
@@ -199,6 +206,30 @@ public class GuiBoard {
 					};
 					
 					new Timer().schedule(sleep, 600);
+					
+					root = board.tree.getRoot();
+					
+					Stack<DraughtsNode> nodes = new Stack();
+					nodes.push(root);
+					
+					int count = 0;
+					
+					/*while (!nodes.isEmpty()) {						
+						DraughtsNode node = nodes.pop();
+						
+						count++;
+						
+						System.out.print(board.tree.minimax(node, true) + " | ");
+						
+						for (DraughtsNode child : node.getChildren()) {
+							nodes.push(child);
+						}
+						
+						if (count % 10 == 0)
+							System.out.println();
+					}*/
+					
+					System.out.println(temp + "\n");
 				}
 				
 				for (DraughtsNode d : root.getChildren()) {
