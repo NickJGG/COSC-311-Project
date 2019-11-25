@@ -3,6 +3,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
@@ -15,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.imageio.ImageIO;
 
 public class GuiBoard {
@@ -22,9 +25,14 @@ public class GuiBoard {
 	JPanel mainPanel;
 	JPanel infoPanel;
 	
+	JButton moveAi;
+	
 	SpacePanel[] spaces = new SpacePanel[32];
 	
 	DraughtsTree tree;
+	
+	boolean humanPlayer = false;
+	
 	
 	public GuiBoard(DraughtsTree tree) {
 		this.tree = tree;
@@ -79,6 +87,27 @@ public class GuiBoard {
 		infoTitle.add(new JLabel("Information"));
 		infoTitle.setBackground(Color.WHITE);
 		infoPanel.add(infoTitle, BorderLayout.PAGE_START);
+		
+		JButton moveAi = new JButton("Next Move");
+		moveAi.setEnabled(!humanPlayer);
+		moveAi.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				tree.updateRoot(new MiniMax('w').makeMove(tree));
+				
+				update();
+				
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e1) {
+				}
+				
+				tree.updateRoot(new WorstMove('b').makeMove(tree));
+				
+				update();
+				
+			}
+		});
+		infoPanel.add(moveAi, BorderLayout.PAGE_END);
 
 		f.add(borderPanel);
 		borderPanel.add(mainPanel);
@@ -176,7 +205,7 @@ public class GuiBoard {
 				secondSelected = 0;
 				
 				System.out.print(position + " > ");
-			} else if (firstSelected != 0 && secondSelected == 0) {
+			} else if (firstSelected != 0 && secondSelected == 0 && board.humanPlayer) {
 				secondSelected = position;
 				
 				System.out.println(position);
@@ -218,6 +247,7 @@ public class GuiBoard {
 					int count = 0;
 					
 					System.out.println(temp + "\n");
+					
 				}
 				
 				for (DraughtsNode d : root.getChildren()) {

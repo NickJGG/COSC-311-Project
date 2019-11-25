@@ -12,7 +12,7 @@ public class Draughts {
 		this.blackScore = 0;
 		this.tree = new DraughtsTree();
 		
-		//DraughtsNode root = new DraughtsNode(tree);
+//		DraughtsNode root = new DraughtsNode(tree);
 		DraughtsNode root = new DraughtsNode(tree,
 				 0b000000000000111111,
 				 0b111111000000000000,
