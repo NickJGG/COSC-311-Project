@@ -22,19 +22,21 @@ import javax.imageio.ImageIO;
 
 public class GuiBoard {
 	JFrame f;
-	JPanel mainPanel;
-	JPanel infoPanel;
+	JPanel mainPanel, infoPanel;
 	
 	JButton moveAi;
 	
-	SpacePanel[] spaces = new SpacePanel[32];
+	JLabel score;
+	
+	SpacePanel[] spaces;
 	
 	DraughtsTree tree;
 	
-	boolean humanPlayer = true;
+	boolean humanPlayer = false;
 	
 	public GuiBoard(DraughtsTree tree) {
 		this.tree = tree;
+		this.spaces = new SpacePanel[tree.totalSpots];
 		
 		createAndShow();
 		
@@ -57,14 +59,11 @@ public class GuiBoard {
 
 		for (int i = 0; i < tree.totalSpots; i++) {
 			JPanel dummy = new JPanel();
-			spaces[i] = new SpacePanel(i + 1, this);
-
-			dummy.setPreferredSize(new Dimension(40, 40));
-			spaces[i].setPreferredSize(new Dimension(40, 40));
-
-			// new Color(56, 187, 0), new Color(251, 214, 114)
-
 			dummy.setBackground(new Color(255, 255, 255));
+			dummy.setPreferredSize(new Dimension(40, 40));
+			
+			spaces[i] = new SpacePanel(i + 1, this);
+			spaces[i].setPreferredSize(new Dimension(40, 40));
 			spaces[i].setBackground(new Color(200, 200, 200));
 
 			if ((i / tree.width) % 2 == 0) {
@@ -85,33 +84,42 @@ public class GuiBoard {
 		JPanel infoTitle = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		infoTitle.add(new JLabel("Information"));
 		infoTitle.setBackground(Color.WHITE);
+		
 		infoPanel.add(infoTitle, BorderLayout.PAGE_START);
+		
+		score = new JLabel("<html>White: " + tree.whiteScore + "<br>Black: " + tree.blackScore + "</html>");
+		
+		infoPanel.add(score);
+		//infoPanel.add(blackScore);
 		
 		JButton moveAi = new JButton("Next Move");
 		moveAi.setEnabled(!humanPlayer);
 		moveAi.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				tree.updateRoot(new MiniMax(tree, 'w').makeMove());
+				TimerTask sleep = new TimerTask() {
+				      public void run() {
+				    	  tree.updateRoot(new WorstMove(tree, 'b').makeMove());
+				    	  update();
+				      }
+				},
+					sleep2 = new TimerTask() {
+				      public void run() {
+				    	  tree.updateRoot(new MiniMax(tree, 'w').makeMove());
+				    	  update();
+				    	  new Timer().schedule(sleep, 600);
+				      }
+				};
 				
-				update();
-				
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e1) {
-				}
-				
-				tree.updateRoot(new WorstMove(tree, 'b').makeMove());
-				
-				update();
-				
+				new Timer().schedule(sleep2, 600);
 			}
 		});
+		
 		infoPanel.add(moveAi, BorderLayout.PAGE_END);
 
-		f.add(borderPanel);
 		borderPanel.add(mainPanel);
 		borderPanel.add(infoPanel);
-
+		
+		f.add(borderPanel);
 		f.pack();
 		f.setVisible(true);
 	}
@@ -136,6 +144,8 @@ public class GuiBoard {
 				spaces[i - 1].update(SpacePanel.NONE);
 		}
 		
+		score.setText("<html>White: " + tree.whiteScore + "<br>Black: " + tree.blackScore + "</html>");
+		
 		f.pack();
 		f.repaint();
 	}
@@ -152,7 +162,6 @@ public class GuiBoard {
 		private static ImageIcon blackMan;
 		private static ImageIcon whiteKing;
 		private static ImageIcon blackKing;
-		
 		
 		static int firstSelected = 0;
 		static int secondSelected = 0;

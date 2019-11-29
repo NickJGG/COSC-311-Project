@@ -251,6 +251,13 @@ public class DraughtsTree {
 	public void updateRoot(Move move) {
 		for(DraughtsNode child : root.children) {
 			if(child.move.equals(move)) {
+				if (move.isCapture()) {
+					if (move.getPlayer() == 'w')
+						whiteScore++;
+					else
+						blackScore++;
+				}
+				
 				this.root = child;
 				root.depth = 0;
 				root.movesSinceCap = 0;
