@@ -1,5 +1,3 @@
-
-
 public abstract class DraughtsEngine {
 	// Name of this engine
 	String name;
@@ -7,11 +5,13 @@ public abstract class DraughtsEngine {
 	// What color is this AI
 	char player;
 	
-	public DraughtsEngine(String name, char player) {
+	DraughtsTree tree;
+	
+	public DraughtsEngine(DraughtsTree tree, String name, char player) {
+		this.tree = tree;
 		this.name = name;
 		this.player = player;
 	}
 	
-	public abstract Move makeMove(DraughtsTree tree);
-	
+	public abstract Move makeMove();
 }

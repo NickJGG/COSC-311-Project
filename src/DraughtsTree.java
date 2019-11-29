@@ -4,18 +4,50 @@ import java.util.Stack;
 
 import tictactoe.TicTacNode;
 
+enum GameMode {
+	EASY,
+	MEDIUM,
+	HARD
+}
+
 public class DraughtsTree {
-	int width = 3, height = 3, totalSpots = width * height * 2;
-	int depth = 5, turnsToQuit = 10;
+	int width = 3, height = 3, totalSpots = width * height * 2,
+		depth = 5, turnsToQuit = 10,
+		whiteScore = 0, blackScore = 0;
 
 	DraughtsNode root;
+	
+	DraughtsEngine engine;
+	
+	GameMode mode;
 
 	public DraughtsTree() {
 		this.root = new DraughtsNode(this, 0b00000000000000000000111111111111, 0b11111111111100000000000000000000,
 				0b00000000000000000000000000000000, 0);
+	
+		setMode(GameMode.HARD);
 	}
-	public DraughtsTree(DraughtsNode root) {
+	public DraughtsTree(DraughtsNode root, GameMode mode) {
 		this.root = root;
+
+		setMode(mode);
+	}
+	
+	void setMode(GameMode mode) {
+		this.mode = mode;
+		
+		switch(mode) {
+			case EASY:
+				this.engine = new RandomMoves(this, 'b');
+				
+				break;
+			case MEDIUM:
+			case HARD:
+				this.engine = new MiniMax(this, 'b');
+				this.depth = mode.ordinal() * 3;
+				
+				break;
+		}
 	}
 
 	public boolean isComplete(DraughtsNode node) {
@@ -239,30 +271,6 @@ public class DraughtsTree {
 		long endTime = System.currentTimeMillis();
 		long totalTime = endTime - startTime;
 		System.out.println("Done in: " + totalTime + "ms");
-	}
-	
-	int evaluateBoard(DraughtsNode node) {
-		if (this.whiteWin(node))
-			return -100;
-		
-		if (this.blackWin(node))
-			return 100;
-		
-		Move move = node.move;
-		
-		int multiplier = move.getPlayer() == 'w' ? -1 : 1, 
-			value = 0,
-			depth = node.depth - root.depth;
-		
-		if (move.isCapture())
-			value += 5 * multiplier;
-		
-		if (move.isKing())
-			value += 4 * multiplier;
-		
-		System.out.print("(" + move.toString() + " = " + (value * depth) + " // cap: " + move.isCapture() + " // depth: " + node.depth + " ) ");
-		
-		return value * depth;
 	}
 
 	public int getRow(int position) {

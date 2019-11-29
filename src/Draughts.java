@@ -1,15 +1,11 @@
 import java.util.ArrayList;
 
 public class Draughts {
-	int whiteScore, blackScore;
-
 	DraughtsTree tree;
 	
 	public DraughtsEngine enemy;
 
 	public Draughts() {
-		this.whiteScore = 0;
-		this.blackScore = 0;
 		this.tree = new DraughtsTree();
 		
 //		DraughtsNode root = new DraughtsNode(tree);

@@ -31,8 +31,7 @@ public class GuiBoard {
 	
 	DraughtsTree tree;
 	
-	boolean humanPlayer = false;
-	
+	boolean humanPlayer = true;
 	
 	public GuiBoard(DraughtsTree tree) {
 		this.tree = tree;
@@ -92,7 +91,7 @@ public class GuiBoard {
 		moveAi.setEnabled(!humanPlayer);
 		moveAi.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				tree.updateRoot(new MiniMax('w').makeMove(tree));
+				tree.updateRoot(new MiniMax(tree, 'w').makeMove());
 				
 				update();
 				
@@ -101,7 +100,7 @@ public class GuiBoard {
 				} catch (InterruptedException e1) {
 				}
 				
-				tree.updateRoot(new WorstMove('b').makeMove(tree));
+				tree.updateRoot(new WorstMove(tree, 'b').makeMove());
 				
 				update();
 				
@@ -219,17 +218,7 @@ public class GuiBoard {
 					
 					board.update();
 					
-					String temp = "";
-					
-					//for (DraughtsNode child : root.getChildren()) {
-					//	temp += child.move.getSource() + " > " + child.move.getDest() + " = " + new MiniMax('b').minimax(child, false, board.tree) + "\n";
-					//}
-					
-					// AI makes their move
-					//board.tree.updateRoot(board.tree.getBestMove(root));
-					
-					board.tree.updateRoot(new RandomMoves('b').makeMove(board.tree));
-					
+					board.tree.updateRoot(board.tree.engine.makeMove());
 					
 					TimerTask sleep = new TimerTask() {
 					      public void run() {
@@ -240,14 +229,6 @@ public class GuiBoard {
 					new Timer().schedule(sleep, 600);
 					
 					root = board.tree.getRoot();
-					
-					Stack<DraughtsNode> nodes = new Stack();
-					nodes.push(root);
-					
-					int count = 0;
-					
-					System.out.println(temp + "\n");
-					
 				}
 				
 				for (DraughtsNode d : root.getChildren()) {
