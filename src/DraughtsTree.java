@@ -7,7 +7,8 @@ import tictactoe.TicTacNode;
 enum GameMode {
 	EASY,
 	MEDIUM,
-	HARD
+	HARD,
+	SMARTER
 }
 
 public class DraughtsTree {
@@ -45,6 +46,11 @@ public class DraughtsTree {
 			case HARD:
 				this.engine = new MiniMax(this, 'b');
 				this.depth = mode.ordinal() * 3;
+				
+				break;
+			case SMARTER:
+				this.engine = new MiniMax(this, 'b');
+				this.depth = 10;
 				
 				break;
 		}

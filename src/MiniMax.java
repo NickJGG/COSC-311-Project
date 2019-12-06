@@ -20,7 +20,7 @@ public class MiniMax extends DraughtsEngine {
 		DraughtsNode bestNode = node.getChildren().get(i);
 		
 		for (DraughtsNode child : node.getChildren()) { // Find child with highest score
-			int score = minimax(child, false);
+			int score = minimax(child, true);
 			
 			if (score > bestScore) {
 				bestScore = score;
@@ -42,7 +42,7 @@ public class MiniMax extends DraughtsEngine {
 		
 		int multiplier = move.getPlayer() == 'w' ? -1 : 1, 
 			value = 0,
-			depth = node.depth - tree.getRoot().depth;
+			depth = tree.depth - (node.depth - tree.getRoot().depth);
 		
 		if (move.isCapture())
 			value += 5 * multiplier;
@@ -50,7 +50,7 @@ public class MiniMax extends DraughtsEngine {
 		if (move.isKing())
 			value += 4 * multiplier;
 		
-		System.out.print("(" + move.toString() + " = " + (value * depth) + " // cap: " + move.isCapture() + " // depth: " + node.depth + " ) ");
+		System.out.print("(" + move.toString() + " = " + (value * depth) + " // cap: " + move.isCapture() + " // depth: " + node.depth + " ) \n");
 		
 		return value * depth;
 	}

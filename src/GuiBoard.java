@@ -32,7 +32,7 @@ public class GuiBoard {
 	
 	DraughtsTree tree;
 	
-	boolean humanPlayer = false;
+	boolean humanPlayer = true;
 	
 	public GuiBoard(DraughtsTree tree) {
 		this.tree = tree;
