@@ -18,6 +18,8 @@ import javax.swing.JLabel;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.imageio.ImageIO;
 
 public class GuiBoard {
@@ -26,13 +28,18 @@ public class GuiBoard {
 	
 	JButton moveAi;
 	
+	JCheckBox humanPlayer;
+	
 	JLabel score;
 	
 	SpacePanel[] spaces;
 	
 	DraughtsTree tree;
 	
-	boolean humanPlayer = true;
+	//JComboBox whiteEngine;
+	//JComboBox blackEngine;
+	
+	//boolean humanPlayer = false;
 	
 	public GuiBoard(DraughtsTree tree) {
 		this.tree = tree;
@@ -89,16 +96,18 @@ public class GuiBoard {
 		
 		score = new JLabel("<html>White: " + tree.whiteScore + "<br>Black: " + tree.blackScore + "</html>");
 		
-		infoPanel.add(score);
+		
 		//infoPanel.add(blackScore);
 		
+		humanPlayer = new JCheckBox("Human Player?");
+		
 		JButton moveAi = new JButton("Next Move");
-		moveAi.setEnabled(!humanPlayer);
+		moveAi.setEnabled(!humanPlayer.isSelected());
 		moveAi.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TimerTask sleep = new TimerTask() {
 				      public void run() {
-				    	  tree.updateRoot(new WorstMove(tree, 'b').makeMove());
+				    	  tree.updateRoot(new MiniMax(tree, 'b').makeMove());
 				    	  update();
 				      }
 				},
@@ -113,6 +122,14 @@ public class GuiBoard {
 				new Timer().schedule(sleep2, 600);
 			}
 		});
+		
+		JPanel centralPanel = new JPanel(new BorderLayout());
+		centralPanel.setBackground(Color.WHITE);
+		
+		infoPanel.add(centralPanel, BorderLayout.CENTER);
+		
+		centralPanel.add(humanPlayer, BorderLayout.PAGE_END);
+		centralPanel.add(score, BorderLayout.CENTER);
 		
 		infoPanel.add(moveAi, BorderLayout.PAGE_END);
 
@@ -213,7 +230,7 @@ public class GuiBoard {
 				secondSelected = 0;
 				
 				System.out.print(position + " > ");
-			} else if (firstSelected != 0 && secondSelected == 0 && board.humanPlayer) {
+			} else if (firstSelected != 0 && secondSelected == 0 && board.humanPlayer.isSelected()) {
 				secondSelected = position;
 				
 				System.out.println(position);

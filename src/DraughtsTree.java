@@ -26,7 +26,7 @@ public class DraughtsTree {
 		this.root = new DraughtsNode(this, 0b00000000000000000000111111111111, 0b11111111111100000000000000000000,
 				0b00000000000000000000000000000000, 0);
 	
-		setMode(GameMode.HARD);
+		setMode(GameMode.SMARTER);
 	}
 	public DraughtsTree(DraughtsNode root, GameMode mode) {
 		this.root = root;
