@@ -1,3 +1,3 @@
-# COSC-311-Project
+# draught-ai
 
 An AI for checkers/draughts
